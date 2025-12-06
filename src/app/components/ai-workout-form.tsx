@@ -49,6 +49,7 @@ export function AIWorkoutForm() {
 
   const onSubmit = (values: FormData) => {
     startTransition(async () => {
+      // On a fresh submission, add the current plan (if any) to history
       if (workoutPlan) {
         setWorkoutHistory(prev => [workoutPlan, ...prev]);
       }
@@ -80,6 +81,12 @@ export function AIWorkoutForm() {
   }
 
   const handleRegenerate = () => {
+    if (!workoutPlan) return;
+    
+    // Add the current plan to history before generating a new one
+    setWorkoutHistory(prev => [workoutPlan, ...prev]);
+
+    // Re-run the submission logic with the current form values
     form.handleSubmit(onSubmit)();
   }
 
