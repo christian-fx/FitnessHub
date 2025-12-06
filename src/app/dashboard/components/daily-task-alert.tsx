@@ -23,7 +23,7 @@ const getDayOfYear = () => {
 
 export function DailyTaskAlert() {
   const [isOpen, setIsOpen] = useState(false);
-  const [task, setTask] = useState('');
+  const [task, setTask] = useState<string | null>(null);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
@@ -38,12 +38,16 @@ export function DailyTaskAlert() {
     }
   }, []);
 
-  if (!isOpen) {
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  if (!isOpen || !task) {
     return null;
   }
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+    <AlertDialog open={isOpen} onOpenChange={handleClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 font-headline">
@@ -55,7 +59,7 @@ export function DailyTaskAlert() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={() => setIsOpen(false)} className="w-full">
+          <AlertDialogAction onClick={handleClose} className="w-full">
             Got it!
           </AlertDialogAction>
         </AlertDialogFooter>
