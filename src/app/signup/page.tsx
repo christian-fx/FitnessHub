@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -23,6 +23,8 @@ export default function SignupPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +49,8 @@ export default function SignupPage() {
         displayName: displayName,
       });
 
+      await sendEmailVerification(user);
+
       // This data will now be created by the useUser hook automatically
       // We just need to create the doc to trigger the hook.
       await setDoc(doc(firestore, "users", user.uid), {
@@ -56,10 +60,11 @@ export default function SignupPage() {
         photoURL: user.photoURL,
       }, { merge: true });
       
-      router.push('/dashboard');
+      router.push('/login');
       toast({
-        title: "Account Created",
-        description: "Welcome to Fitness Hub!",
+        title: "Account Created! Please Verify Your Email",
+        description: "We've sent a verification link to your email address. Please check your inbox.",
+        duration: 10000,
       });
     } catch (error: any) {
       toast({
@@ -118,13 +123,24 @@ export default function SignupPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input 
+                  id="password" 
+                  type={showPassword ? 'text' : 'password'}
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    type="button"
+                    className="absolute inset-y-0 right-0 h-full px-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                >
+                    {showPassword ? <EyeOff /> : <Eye />}
+                </Button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

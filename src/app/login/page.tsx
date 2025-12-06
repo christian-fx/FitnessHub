@@ -2,15 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
@@ -41,7 +42,6 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
     );
   }
   
-
 export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
@@ -50,19 +50,40 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      if (!userCredential.user.emailVerified) {
+        toast({
+            variant: 'destructive',
+            title: 'Email Not Verified',
+            description: 'Please check your inbox to verify your email address before logging in.',
+        });
+        setIsLoading(false);
+        return;
+      }
       router.push('/dashboard');
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: error.message || 'Please check your credentials and try again.',
-      });
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: 'Invalid email or password. Please try again.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: error.message || 'Please check your credentials and try again.',
+            });
+        }
     } finally {
         setIsLoading(false);
     }
@@ -84,6 +105,33 @@ export default function LoginPage() {
         setIsGoogleLoading(false);
     }
   };
+
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+        toast({
+            variant: "destructive",
+            title: "Email Required",
+            description: "Please enter your email address.",
+        });
+        return;
+    }
+    setIsResetting(true);
+    try {
+        await sendPasswordResetEmail(auth, resetEmail);
+        toast({
+            title: "Password Reset Email Sent",
+            description: "Check your inbox for a link to reset your password.",
+        });
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Error Sending Reset Email",
+            description: error.message || "Could not send password reset email. Please try again.",
+        });
+    } finally {
+        setIsResetting(false);
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/30">
@@ -108,16 +156,59 @@ export default function LoginPage() {
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="link" type="button" className="p-0 h-auto text-xs">
+                            Forgot password?
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Reset Your Password</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Enter your email address and we&apos;ll send you a link to reset your password.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="grid gap-2">
+                            <Label htmlFor="reset-email">Email</Label>
+                            <Input
+                                id="reset-email"
+                                type="email"
+                                placeholder="m@example.com"
+                                value={resetEmail}
+                                onChange={(e) => setResetEmail(e.target.value)}
+                            />
+                        </div>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handlePasswordReset} disabled={isResetting}>
+                            {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Send Reset Link
+                        </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
               </div>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input 
+                  id="password" 
+                  type={showPassword ? 'text' : 'password'} 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    type="button"
+                    className="absolute inset-y-0 right-0 h-full px-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                >
+                    {showPassword ? <EyeOff /> : <Eye />}
+                </Button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
