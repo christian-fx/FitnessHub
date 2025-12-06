@@ -64,6 +64,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const getPageTitle = () => {
     if (pathname === '/' || pathname === '/landing') return 'Welcome';
     const currentPath = pathname.split('/')[1];
+    if (currentPath === 'ai') return 'AI Planner';
     const navItem = navItems.find(item => item.href.includes(currentPath));
     return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
   }
