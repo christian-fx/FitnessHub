@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare, Wand2 } from 'lucide-react';
+import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare, Wand2, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/icons';
@@ -63,10 +63,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   
   const getPageTitle = () => {
     if (pathname === '/' || pathname === '/landing') return 'Welcome';
-    const currentPath = pathname.split('/')[1];
-    if (currentPath === 'ai') return 'AI Planner';
-    const navItem = navItems.find(item => item.href.includes(currentPath));
-    return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
+
+    const currentPath = `/${pathname.split('/')[1]}`;
+    
+    if (currentPath === '/ai') return 'AI Planner';
+    if (currentPath === '/profile') return 'Profile';
+    if (currentPath === '/contact') return 'Contact Us';
+    if (currentPath === '/help') return 'Help & FAQ';
+    if (currentPath === '/terms') return 'Terms of Use';
+
+    const navItem = navItems.find(item => item.href.startsWith(currentPath));
+    return navItem?.label ?? 'Fitness Hub';
   }
 
   const isLandingPage = pathname === '/' || pathname === '/landing';
@@ -77,7 +84,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
           <div className="inline-flex items-center gap-2">
             <Logo className="size-7 text-primary" />
-            <span className="font-headline text-lg font-semibold">
+            <span className="font-semibold text-lg">
               Fitness Hub
             </span>
           </div>
@@ -140,7 +147,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="flex h-16 items-center gap-4 border-b bg-background/95 px-4 md:px-6 backdrop-blur-sm sticky top-0 z-30">
           <SidebarTrigger className="flex md:hidden" />
           <div className="flex-1">
-            <h1 className="text-xl font-semibold font-headline">
+            <h1 className="text-xl font-semibold">
               {getPageTitle()}
             </h1>
           </div>

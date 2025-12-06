@@ -215,7 +215,7 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">My Profile</CardTitle>
+          <CardTitle className="font-semibold">My Profile</CardTitle>
           <CardDescription>
             Update your personal details and fitness preferences.
           </CardDescription>
@@ -302,7 +302,7 @@ export default function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2 text-primary">
+          <CardTitle className="font-semibold flex items-center gap-2 text-primary">
             <ShieldCheck />
             Streak Insurance
           </CardTitle>
@@ -343,7 +343,7 @@ export default function ProfilePage() {
       
       <Card className="border-destructive/50">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2 text-destructive">
+          <CardTitle className="font-semibold flex items-center gap-2 text-destructive">
             <AlertTriangle />
             Danger Zone
           </CardTitle>

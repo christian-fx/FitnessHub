@@ -6,7 +6,7 @@ export default function TermsOfUsePage() {
     <div className="max-w-4xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Terms of Use</CardTitle>
+          <CardTitle className="font-semibold text-3xl">Terms of Use</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none">

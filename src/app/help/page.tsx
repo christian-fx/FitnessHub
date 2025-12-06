@@ -42,7 +42,7 @@ export default function HelpPage() {
           <div className="flex items-center gap-3">
             <HelpCircle className="h-8 w-8 text-primary" />
             <div>
-              <CardTitle className="font-headline text-3xl">Help & FAQ</CardTitle>
+              <CardTitle className="font-semibold text-3xl">Help & FAQ</CardTitle>
               <CardDescription>
                 Find answers to common questions about Fitness Hub.
               </CardDescription>

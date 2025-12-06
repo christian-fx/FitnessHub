@@ -10,7 +10,7 @@ export default function LandingPage() {
       <main className="flex-grow">
         <section className="relative text-center py-20 md:py-32 bg-card border-b -mt-8">
           <div className="relative z-10 px-4 container">
-            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
               Your Personal AI Fitness Coach
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -35,7 +35,7 @@ export default function LandingPage() {
         <section className="py-16 md:py-24">
           <div className="container">
               <div className="text-center">
-                  <h2 className="text-3xl font-bold font-headline">Features to Help You Succeed</h2>
+                  <h2 className="text-3xl font-bold">Features to Help You Succeed</h2>
                   <p className="mt-2 text-muted-foreground max-w-xl mx-auto">
                       Everything you need to stay on track, get stronger, and achieve your fitness ambitions.
                   </p>

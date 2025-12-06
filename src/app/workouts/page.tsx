@@ -266,7 +266,7 @@ export default function WorkoutsPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 className="text-3xl font-bold tracking-tight font-headline">Workout Plans</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Workout Plans</h1>
             <p className="text-muted-foreground mt-1">
               Find a plan that fits your level. Click one to start a session.
             </p>
@@ -285,7 +285,7 @@ export default function WorkoutsPage() {
           <Card key={index} className="flex flex-col hover:shadow-md transition-shadow duration-300">
             <CardHeader>
                 <div className='flex justify-between items-start gap-2'>
-                    <CardTitle className="flex items-center gap-2 font-headline">
+                    <CardTitle className="flex items-center gap-2 font-semibold">
                         {getIcon(plan.metric)} {plan.title}
                     </CardTitle>
                     <Badge className={cn(getDifficultyColor(plan.difficulty), 'whitespace-nowrap')}>

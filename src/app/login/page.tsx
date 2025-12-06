@@ -138,7 +138,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-muted/30">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Login</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Login</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>

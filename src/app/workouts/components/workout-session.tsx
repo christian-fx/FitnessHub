@@ -180,7 +180,7 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
           <X />
         </Button>
         <CardHeader>
-          <CardTitle className="font-headline">{plan.title}</CardTitle>
+          <CardTitle className="font-semibold">{plan.title}</CardTitle>
           <CardDescription>
             Exercise {currentExerciseIndex + 1} of {plan.exercises.length}
           </CardDescription>
@@ -189,7 +189,7 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
         <CardContent className="text-center">
             {isCompleted ? (
                 <div className="flex flex-col items-center justify-center p-8 gap-4">
-                    <h2 className="text-3xl font-bold font-headline text-primary">Workout Complete!</h2>
+                    <h2 className="text-3xl font-bold text-primary">Workout Complete!</h2>
                     <p className="text-muted-foreground">You rocked it! Ready to log this session?</p>
                     <Button size="lg" onClick={handleFinishWorkout}>Finish & Log Workout</Button>
                 </div>

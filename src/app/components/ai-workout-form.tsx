@@ -178,7 +178,7 @@ export function AIWorkoutForm() {
         <Card className="animate-in fade-in-50">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-1.5">
-                <CardTitle className="font-headline flex items-center gap-2">
+                <CardTitle className="font-semibold flex items-center gap-2">
                     <Wand2 />
                     Your Personalized Workout Plan
                 </CardTitle>
@@ -202,7 +202,7 @@ export function AIWorkoutForm() {
             </div>
             {!user && (
                 <div className="mt-6 p-6 bg-accent/20 border border-accent/50 rounded-lg text-center">
-                    <h3 className="text-xl font-bold font-headline text-accent-foreground">Like what you see?</h3>
+                    <h3 className="text-xl font-bold text-accent-foreground">Like what you see?</h3>
                     <p className="mt-2 text-muted-foreground">Sign up to save your progress, access full workout plans, and join challenges!</p>
                     <div className="mt-4 flex justify-center gap-4">
                         <Button asChild>

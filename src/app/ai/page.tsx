@@ -16,7 +16,7 @@ import { Wand2 } from 'lucide-react';
                 <div className="flex items-center gap-3">
                     <Wand2 className="h-8 w-8 text-primary" />
                     <div>
-                        <CardTitle className="font-headline text-3xl">AI Workout Planner</CardTitle>
+                        <CardTitle className="font-semibold text-3xl">AI Workout Planner</CardTitle>
                         <CardDescription className="mt-1">
                             Fill out the form below to get a personalized workout plan from our AI trainer.
                         </CardDescription>
