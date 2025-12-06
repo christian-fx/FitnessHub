@@ -1,14 +1,15 @@
 'use server';
 
-import { auth } from 'firebase-admin';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { headers } from 'next/headers';
-
-// Initialize Firebase Admin SDK if not already initialized
-import admin from 'firebase-admin';
-if (!admin.apps.length) {
-    admin.initializeApp();
-}
+import {
+  getFirestore,
+  FieldValue,
+  doc,
+  collection,
+  runTransaction,
+  addDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { initializeFirebase, useUser } from '@/firebase';
 
 type WorkoutData = {
   workoutType: string;
@@ -18,45 +19,36 @@ type WorkoutData = {
   notes?: string;
 };
 
-export async function logWorkout(data: WorkoutData) {
+export async function logWorkout(uid: string, data: WorkoutData) {
   try {
-    const headersList = headers();
-    const authorization = headersList.get('authorization');
-    if (!authorization) {
-        throw new Error('User not authenticated.');
-    }
-    const token = authorization.split('Bearer ')[1];
-    const decodedToken = await auth().verifyIdToken(token);
-    const uid = decodedToken.uid;
-
-    if (!uid) {
-      throw new Error('User not authenticated.');
-    }
-
-    const firestore = getFirestore();
-    const workoutRef = firestore.collection('users').doc(uid).collection('workouts').doc();
-    const userRef = firestore.collection('users').doc(uid);
+    const { firestore } = initializeFirebase();
+    const userRef = doc(firestore, 'users', uid);
+    const workoutsCollectionRef = collection(userRef, 'workouts');
 
     const workoutPayload = {
       ...data,
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: serverTimestamp(),
     };
 
-    await firestore.runTransaction(async (transaction) => {
-      // Get the current totalWorkouts
+    await runTransaction(firestore, async (transaction) => {
       const userDoc = await transaction.get(userRef);
+      if (!userDoc.exists()) {
+        throw 'Document does not exist!';
+      }
+      
       const currentWorkouts = userDoc.data()?.totalWorkouts || 0;
-      
-      // Add the new workout
-      transaction.set(workoutRef, workoutPayload);
-      
-      // Update the total workout count
+
+      // Add the new workout to the subcollection
+      const newWorkoutRef = doc(workoutsCollectionRef); // Create a new doc ref in the subcollection
+      transaction.set(newWorkoutRef, workoutPayload);
+
+      // Update the aggregate count on the user document
       transaction.update(userRef, { totalWorkouts: currentWorkouts + 1 });
     });
 
     return { success: true };
   } catch (error: any) {
     console.error('Error logging workout:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error.message || 'Could not log workout.' };
   }
 }

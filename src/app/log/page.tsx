@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { logWorkout } from './actions';
-import { withFirebaseAuth } from '@/firebase';
+import { useUser } from '@/firebase';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -56,11 +56,10 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const logWorkoutWithAuth = withFirebaseAuth(logWorkout);
-
 export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const { user } = useUser();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -74,8 +73,16 @@ export default function LogWorkoutPage() {
   });
 
   const onSubmit = (values: FormData) => {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Not Authenticated",
+            description: "You must be logged in to log a workout.",
+        });
+        return;
+    }
     startTransition(async () => {
-      const result = await logWorkoutWithAuth(values);
+      const result = await logWorkout(user.uid, values);
       if (result.success) {
         toast({
           title: 'Workout Logged!',
