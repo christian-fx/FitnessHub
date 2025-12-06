@@ -23,6 +23,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { signOut } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
+import { Notifications } from './notifications';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -115,39 +116,42 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {loading ? (
             <Skeleton className="h-8 w-8 rounded-full" />
           ) : user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
-                    <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link href="/profile" passHref>
-                    <DropdownMenuItem asChild>
-                        <div className="cursor-pointer">
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profile</span>
-                        </div>
-                    </DropdownMenuItem>
-                </Link>
-                <DropdownMenuItem onClick={handleSignOut}>
-                    <div className="cursor-pointer">
-                        <LogIn className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
-                    </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-2">
+              <Notifications />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
+                      <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                      <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                          <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                      </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <Link href="/profile" passHref>
+                      <DropdownMenuItem asChild>
+                          <div className="cursor-pointer">
+                              <User className="mr-2 h-4 w-4" />
+                              <span>Profile</span>
+                          </div>
+                      </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                      <div className="cursor-pointer">
+                          <LogIn className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                      </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <Button asChild>
                 <Link href="/login">Log In</Link>

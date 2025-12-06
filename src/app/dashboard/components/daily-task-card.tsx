@@ -89,7 +89,7 @@ export function DailyTaskCard() {
         await updateDoc(userRef, {
             activeStreak: newStreak,
             lastWorkoutDate: todayStr,
-            dailyTaskLastCompleted: todayStr, // Also update this field
+            dailyTaskLastCompleted: todayStr,
         });
          toast({
             title: "Streak Updated!",
@@ -113,6 +113,7 @@ export function DailyTaskCard() {
 
     setTimeout(() => {
         setIsVisible(false);
+        setIsCompleted(false);
     }, 5000); // Hide card after 5 seconds of confetti
   };
 
