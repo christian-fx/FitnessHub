@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,12 +29,15 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Loader2, Dumbbell } from 'lucide-react';
+import { Loader2, Dumbbell, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, collection, serverTimestamp, writeBatch, increment, getDoc, Timestamp } from 'firebase/firestore';
 import type { UserProfile } from '@/firebase/auth/use-user';
 import { format, subDays, differenceInCalendarDays } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -44,28 +47,29 @@ const formSchema = z.object({
     .positive(),
   caloriesBurned: z.coerce.number().min(0).optional(),
   volumeLifted: z.coerce.number().min(0).optional(),
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please enter a valid date",
+  date: z.date({
+    required_error: "A date is required.",
   }),
   notes: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-const defaultValues: FormData = {
-    workoutType: 'Strength Training',
-    duration: 60,
-    caloriesBurned: 300,
-    volumeLifted: 1000,
-    date: new Date().toISOString().split('T')[0],
-    notes: '',
-}
 
 export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const { user, profile } = useUser();
   const firestore = useFirestore();
+
+  const defaultValues: FormData = useMemo(() => ({
+    workoutType: 'Strength Training',
+    duration: 60,
+    caloriesBurned: 300,
+    volumeLifted: 1000,
+    date: new Date(),
+    notes: '',
+  }), []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -87,8 +91,8 @@ export default function LogWorkoutPage() {
         const workoutsCollectionRef = collection(userRef, 'workouts');
         const newWorkoutRef = doc(workoutsCollectionRef);
 
-        const workoutDate = new Date(values.date);
-        const workoutDateStr = values.date; // YYYY-MM-DD
+        const workoutDate = values.date;
+        const workoutDateStr = format(workoutDate, 'yyyy-MM-dd');
 
         const workoutPayload = {
           ...values,
@@ -278,15 +282,43 @@ export default function LogWorkoutPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
+                 <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Date of Workout</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} className="w-full" />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}

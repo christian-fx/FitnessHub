@@ -1,96 +1,107 @@
+'use client';
+
+import * as React from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Dumbbell, Target, Repeat } from "lucide-react";
+  CardFooter,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Dumbbell, Target, Repeat, PlayCircle } from 'lucide-react';
+import { WorkoutSession, type WorkoutPlan } from './components/workout-session';
 
-const workoutPlans = [
+const workoutPlans: WorkoutPlan[] = [
   {
-    title: "Full Body Strength",
-    goal: "Build overall muscle and strength",
+    title: 'Full Body Strength',
+    goal: 'Build overall muscle and strength',
     daysPerWeek: 3,
     exercises: [
-      { name: "Squats", details: "3 sets of 8-12 reps" },
-      { name: "Bench Press", details: "3 sets of 8-12 reps" },
-      { name: "Deadlifts", details: "3 sets of 5-8 reps" },
-      { name: "Overhead Press", details: "3 sets of 8-12 reps" },
-      { name: "Pull-ups", details: "3 sets to failure" },
+      { name: 'Squats', details: '3 sets of 8-12 reps', duration: 180 },
+      { name: 'Bench Press', details: '3 sets of 8-12 reps', duration: 180 },
+      { name: 'Deadlifts', details: '3 sets of 5-8 reps', duration: 240 },
+      { name: 'Overhead Press', details: '3 sets of 8-12 reps', duration: 180 },
+      { name: 'Pull-ups', details: '3 sets to failure', duration: 150 },
     ],
   },
   {
-    title: "Cardio Burn",
-    goal: "Improve cardiovascular health and endurance",
+    title: 'Cardio Burn',
+    goal: 'Improve cardiovascular health and endurance',
     daysPerWeek: 4,
     exercises: [
-      { name: "Treadmill Run", details: "30 min, Moderate intensity" },
-      { name: "Cycling", details: "20 min, High intensity" },
-      { name: "Jumping Jacks", details: "4 sets of 60 seconds" },
-      { name: "Burpees", details: "4 sets of 15 reps" },
+      { name: 'Treadmill Run', details: '30 min, Moderate intensity', duration: 1800 },
+      { name: 'Cycling', details: '20 min, High intensity', duration: 1200 },
+      { name: 'Jumping Jacks', details: '4 sets of 60 seconds', duration: 240 },
+      { name: 'Burpees', details: '4 sets of 15 reps', duration: 180 },
     ],
   },
   {
-    title: "Flexibility & Mobility",
-    goal: "Increase range of motion and reduce injury risk",
+    title: 'Flexibility & Mobility',
+    goal: 'Increase range of motion and reduce injury risk',
     daysPerWeek: 5,
     exercises: [
-      { name: "Dynamic Stretching", details: "10 minutes" },
-      { name: "Yoga Flow", details: "30 minutes" },
-      { name: "Foam Rolling", details: "15 minutes" },
-      { name: "Deep Stretches (Hamstrings, Hips)", details: "10 minutes" },
+      { name: 'Dynamic Stretching', details: '10 minutes', duration: 600 },
+      { name: 'Yoga Flow', details: '30 minutes', duration: 1800 },
+      { name: 'Foam Rolling', details: '15 minutes', duration: 900 },
+      { name: 'Deep Stretches (Hamstrings, Hips)', details: '10 minutes', duration: 600 },
     ],
   },
 ];
 
 export default function WorkoutsPage() {
+  const [activeWorkout, setActiveWorkout] = React.useState<WorkoutPlan | null>(null);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Workout Plans</h1>
         <p className="text-muted-foreground">
-          Here are your custom and suggested workout plans.
+          Here are your custom and suggested workout plans. Click one to start a session.
         </p>
       </div>
-      <Accordion type="single" collapsible className="w-full space-y-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {workoutPlans.map((plan, index) => (
-          <AccordionItem value={`item-${index}`} key={index} className="border-none">
-             <Card>
-                <AccordionTrigger className="p-6 hover:no-underline">
-                  <div className="flex flex-col text-left items-start">
-                    <CardTitle className="flex items-center gap-2 font-headline">
-                      <Dumbbell className="text-primary" /> {plan.title}
-                    </CardTitle>
-                    <CardDescription className="flex items-center gap-4 pt-2">
-                      <span className="flex items-center gap-1.5"><Target className="size-4" /> {plan.goal}</span>
-                      <span className="flex items-center gap-1.5"><Repeat className="size-4" /> {plan.daysPerWeek} days/week</span>
-                    </CardDescription>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <CardContent>
-                    <ul className="space-y-2 pt-4 border-t">
-                      {plan.exercises.map((ex, exIndex) => (
-                        <li key={exIndex} className="flex justify-between items-center p-3 rounded-md bg-muted/50">
-                          <span className="font-medium">{ex.name}</span>
-                          <span className="text-sm text-muted-foreground">
-                           {ex.details}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </AccordionContent>
-             </Card>
-          </AccordionItem>
+          <Card key={index} className="flex flex-col">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <Dumbbell className="text-primary" /> {plan.title}
+                </CardTitle>
+                 <CardDescription className="pt-2">
+                    <span className="flex items-center gap-1.5"><Target className="size-4 text-muted-foreground" /> {plan.goal}</span>
+                    <span className="flex items-center gap-1.5 mt-1"><Repeat className="size-4 text-muted-foreground" /> {plan.daysPerWeek} days/week</span>
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                 <ul className="space-y-2 pt-4 border-t">
+                    {plan.exercises.slice(0, 3).map((ex, exIndex) => (
+                    <li key={exIndex} className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-muted-foreground">{ex.name}</span>
+                        <span className="text-xs text-muted-foreground/80">
+                        {ex.details}
+                        </span>
+                    </li>
+                    ))}
+                    {plan.exercises.length > 3 && <li className="text-sm text-center text-muted-foreground/80">...and more</li>}
+                </ul>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full" onClick={() => setActiveWorkout(plan)}>
+                <PlayCircle className="mr-2" />
+                Start Workout
+              </Button>
+            </CardFooter>
+          </Card>
         ))}
-      </Accordion>
+      </div>
+
+      {activeWorkout && (
+        <WorkoutSession
+          plan={activeWorkout}
+          onClose={() => setActiveWorkout(null)}
+        />
+      )}
     </div>
   );
 }
