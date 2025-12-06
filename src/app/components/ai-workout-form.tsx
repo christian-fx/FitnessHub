@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Wand2, ArrowRight, Copy, Sparkles } from 'lucide-react';
+import { Loader2, Wand2, ArrowRight, Copy, Sparkles, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
@@ -27,12 +27,25 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
+const TRIAL_STORAGE_KEY = 'fitness-hub-ai-trials';
 
 export function AIWorkoutForm() {
   const [isPending, startTransition] = useTransition();
   const [workoutPlan, setWorkoutPlan] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useUser();
+  const [trialsLeft, setTrialsLeft] = useState(2);
+
+  useEffect(() => {
+    if (!user) {
+      const storedTrials = localStorage.getItem(TRIAL_STORAGE_KEY);
+      if (storedTrials !== null) {
+        setTrialsLeft(Number(storedTrials));
+      } else {
+        localStorage.setItem(TRIAL_STORAGE_KEY, '2');
+      }
+    }
+  }, [user]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -45,11 +58,25 @@ export function AIWorkoutForm() {
   });
 
   const onSubmit = (values: FormData) => {
+    if (!user && trialsLeft <= 0) {
+        toast({
+            variant: "destructive",
+            title: "Free Trials Exhausted",
+            description: "Please sign up or log in to continue using the AI Planner.",
+        });
+        return;
+    }
+
     startTransition(async () => {
       setWorkoutPlan(null); // Clear current plan to show loader
       const result = await getAIWorkout(values);
       if (result.success && result.data?.workoutPlan) {
         setWorkoutPlan(result.data.workoutPlan);
+        if (!user) {
+          const newTrials = trialsLeft - 1;
+          setTrialsLeft(newTrials);
+          localStorage.setItem(TRIAL_STORAGE_KEY, String(newTrials));
+        }
       } else {
         toast({
             variant: "destructive",
@@ -72,89 +99,126 @@ export function AIWorkoutForm() {
     form.reset();
   }
 
+  const trialsExhausted = !user && trialsLeft <= 0;
+
   return (
     <div className="space-y-8">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="fitnessGoals"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fitness Goals</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="e.g., Lose 10 pounds, run a 5k, build upper body strength" {...field} rows={4} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="availableEquipment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Available Equipment</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="e.g., Dumbbells, resistance bands, treadmill, or just bodyweight" {...field} rows={4} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="fitnessLevel"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fitness Level</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+      {trialsExhausted ? (
+        <Card className="text-center">
+            <CardHeader>
+                <div className='w-full flex justify-center'>
+                    <UserPlus className="h-12 w-12 text-primary" />
+                </div>
+                <CardTitle className="font-semibold text-2xl">You've Used Your Free Trials</CardTitle>
+                <CardContent>
+                    <p className="text-muted-foreground mt-2 mb-6">
+                        Create an account to get unlimited access to the AI Workout Planner, save your progress, and join challenges.
+                    </p>
+                    <div className="flex justify-center gap-4">
+                        <Button asChild>
+                            <Link href="/signup">
+                                Sign Up Now <ArrowRight className="ml-2" />
+                            </Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <Link href="/login">
+                                Log In
+                            </Link>
+                        </Button>
+                    </div>
+                </CardContent>
+            </CardHeader>
+        </Card>
+      ) : (
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                control={form.control}
+                name="fitnessGoals"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Fitness Goals</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your fitness level" />
-                      </SelectTrigger>
+                        <Textarea placeholder="e.g., Lose 10 pounds, run a 5k, build upper body strength" {...field} rows={4} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="existingHealthRecommendations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Health Recommendations</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Optional: e.g., Avoid high-impact exercises" {...field} />
-                  </FormControl>
-                   <FormDescription>
-                    Any specific advice from a health professional.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          {workoutPlan ? (
-             <Button type="button" onClick={handleNewPlan} size="lg" variant="outline">
-                <Sparkles className="mr-2 h-4 w-4" />
-                New Plan
-            </Button>
-          ) : (
-            <Button type="submit" disabled={isPending} size="lg">
-                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                Generate Plan
-            </Button>
-          )}
-        </form>
-      </Form>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="availableEquipment"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Available Equipment</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder="e.g., Dumbbells, resistance bands, treadmill, or just bodyweight" {...field} rows={4} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="fitnessLevel"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Fitness Level</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select your fitness level" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="existingHealthRecommendations"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Health Recommendations</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Optional: e.g., Avoid high-impact exercises" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        Any specific advice from a health professional.
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
+            <div className='flex items-center gap-4'>
+                {workoutPlan ? (
+                    <Button type="button" onClick={handleNewPlan} size="lg" variant="outline">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        New Plan
+                    </Button>
+                ) : (
+                    <Button type="submit" disabled={isPending} size="lg">
+                        {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                        Generate Plan
+                    </Button>
+                )}
+                {!user && (
+                    <p className="text-sm text-muted-foreground">
+                        {trialsLeft} free trial{trialsLeft !== 1 ? 's' : ''} remaining.
+                    </p>
+                )}
+            </div>
+            </form>
+        </Form>
+      )}
 
       {isPending && (
         <Card>
