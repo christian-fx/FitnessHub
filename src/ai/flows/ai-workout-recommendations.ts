@@ -48,16 +48,21 @@ const prompt = ai.definePrompt({
   name: 'aiWorkoutRecommendationsPrompt',
   input: {schema: AiWorkoutRecommendationsInputSchema},
   output: {schema: AiWorkoutRecommendationsOutputSchema},
-  prompt: `You are a personal trainer that specializes in creating workout plans.
+  prompt: `You are a world-class personal trainer and fitness expert. Your task is to create a personalized, safe, and effective workout plan based on the user's details.
 
-Create a personalized workout plan based on the user's fitness goals, fitness level, and available equipment. Incorporate any existing health recommendations into the workout plan. Make sure the workout plan is safe and effective for the user.
+**Instructions for the Output:**
+- **Structure:** Format the output clearly with sections like "Workout Overview", "Warm-up", "Main Workout", and "Cool-down".
+- **Formatting:** Use Markdown for formatting. Use headings (e.g., "### Warm-up"), bullet points for exercises, and bold text for emphasis on things like sets, reps, or duration.
+- **Clarity:** Provide clear and concise instructions for each exercise.
+- **Safety:** Always include a disclaimer about consulting a healthcare professional.
 
-Fitness Goals: {{{fitnessGoals}}}
-Fitness Level: {{{fitnessLevel}}}
-Available Equipment: {{{availableEquipment}}}
-Existing Health Recommendations: {{{existingHealthRecommendations}}}
+**User Details:**
+- **Fitness Goals:** {{{fitnessGoals}}}
+- **Fitness Level:** {{{fitnessLevel}}}
+- **Available Equipment:** {{{availableEquipment}}}
+- **Existing Health Recommendations:** {{{existingHealthRecommendations}}}
 
-Workout Plan:`,
+Now, create the personalized workout plan.`,
 });
 
 const aiWorkoutRecommendationsFlow = ai.defineFlow(
