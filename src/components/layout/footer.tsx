@@ -29,12 +29,12 @@ export function Footer({ isLandingPage = false }) {
                     <div className="flex gap-4">
                         {isLandingPage && (
                             <>
-                                <Link href="#" className="hover:text-foreground">Terms of Use</Link>
-                                <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
+                                <Link href="/terms" className="hover:text-foreground">Terms of Use</Link>
+                                <Link href="/terms" className="hover:text-foreground">Privacy Policy</Link>
                             </>
                         )}
-                        <Link href="#" className="hover:text-foreground">Contact Us</Link>
-                        <Link href="#" className="hover:text-foreground">Help</Link>
+                        <Link href="/contact" className="hover:text-foreground">Contact Us</Link>
+                        <Link href="/help" className="hover:text-foreground">Help</Link>
                     </div>
                     <div className="flex items-center gap-4">
                         <Link href="#" aria-label="X social media link">
