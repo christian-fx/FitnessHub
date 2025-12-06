@@ -15,7 +15,6 @@ export const tinyDailyTasks: string[] = [
   "Do 20 crunches.",
   "Smile at the next person you see.",
   "Reach for your toes and hold for 30 seconds.",
-_
   "Step outside for some fresh air for 2 minutes.",
   "Do 15 lunges (each leg).",
   "Stand up and stretch your arms overhead.",
