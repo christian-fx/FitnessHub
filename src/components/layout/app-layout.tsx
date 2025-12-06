@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -58,6 +59,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (pathname === '/login' || pathname === '/signup') {
     return <>{children}</>;
   }
+  
+  const getPageTitle = () => {
+    if (pathname === '/') return 'Home';
+    const navItem = navItems.find(item => item.href === pathname);
+    return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
+  }
 
   return (
     <SidebarProvider>
@@ -97,6 +104,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarMenu>
             ) : (
                 <div className="p-2">
+                     <Link href="/" passHref legacyBehavior>
+                        <SidebarMenuButton icon={<Home />} isActive={pathname === '/'}>
+                            Home
+                        </SidebarMenuButton>
+                    </Link>
                     <Link href="/login" passHref legacyBehavior>
                         <SidebarMenuButton icon={<LogIn />}>
                             Login
@@ -111,7 +123,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarTrigger className="flex md:hidden" />
           <div className="flex-1">
             <h1 className="text-xl font-semibold font-headline">
-              {navItems.find(item => item.href === pathname)?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub')}
+              {getPageTitle()}
             </h1>
           </div>
           {loading ? (
@@ -159,6 +171,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <ThemeToggle />
                 <Button asChild>
                     <Link href="/login">Log In</Link>
+                </Button>
+                 <Button asChild variant="outline">
+                    <Link href="/signup">Sign Up</Link>
                 </Button>
             </div>
           )}

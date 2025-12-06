@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -13,8 +14,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/firebase';
+import Link from 'next/link';
 
 const formSchema = z.object({
   fitnessGoals: z.string().min(10, 'Please describe your goals in more detail (at least 10 characters).'),
@@ -29,6 +32,7 @@ export function AIWorkoutForm() {
   const [isPending, startTransition] = useTransition();
   const [workoutPlan, setWorkoutPlan] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useUser();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -160,6 +164,24 @@ export function AIWorkoutForm() {
                     </ReactMarkdown>
                 </div>
             </div>
+            {!user && (
+                <div className="mt-6 p-6 bg-accent/20 border border-accent/50 rounded-lg text-center">
+                    <h3 className="text-xl font-bold font-headline text-accent-foreground">Like what you see?</h3>
+                    <p className="mt-2 text-muted-foreground">Sign up to save your progress, access full workout plans, and join challenges!</p>
+                    <div className="mt-4 flex justify-center gap-4">
+                        <Button asChild>
+                            <Link href="/signup">
+                                Sign Up Now <ArrowRight className="ml-2" />
+                            </Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <Link href="/login">
+                                Log In
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
           </CardContent>
         </Card>
       )}
