@@ -12,36 +12,45 @@ import { DailyTaskCard } from "./components/daily-task-card";
 export default function DashboardPage() {
   const { user, profile, loading } = useUser();
 
-  const stats = useMemo(() => [
+  const stats = useMemo(() => {
+    if (!profile) {
+        return [
+            { title: "Total Workouts", value: 0, change: '', icon: Activity, color: "text-muted-foreground" },
+            { title: "Calories Burned", value: 0, change: '', icon: Flame, color: "text-accent" },
+            { title: "Volume Lifted", value: '0 kg', change: '', icon: Dumbbell, color: "text-muted-foreground" },
+            { title: "Active Streak", value: '0 days', change: '', icon: Zap, color: "text-primary" },
+        ];
+    }
+    return [
     {
       title: "Total Workouts",
-      value: profile?.totalWorkouts?.toLocaleString() ?? 0,
-      change: `+${profile?.recentWorkoutChange ?? 0} this month`,
+      value: profile.totalWorkouts?.toLocaleString() ?? 0,
+      change: `+${profile.recentWorkoutChange ?? 0} this month`,
       icon: Activity,
       color: "text-muted-foreground",
     },
     {
       title: "Calories Burned",
-      value: profile?.caloriesBurned?.toLocaleString() ?? 0,
-      change: `+${profile?.recentCaloriesChange ?? 0} kcal this month`,
+      value: profile.caloriesBurned?.toLocaleString() ?? 0,
+      change: `+${profile.recentCaloriesChange ?? 0} kcal this month`,
       icon: Flame,
       color: "text-accent",
     },
     {
       title: "Volume Lifted",
-      value: `${(profile?.volumeLifted ?? 0).toLocaleString()} kg`,
-      change: `+${(profile?.recentVolumeChange ?? 0).toLocaleString()}% this month`,
+      value: `${(profile.volumeLifted ?? 0).toLocaleString()} kg`,
+      change: `+${(profile.recentVolumeChange ?? 0).toLocaleString()}% this month`,
       icon: Dumbbell,
       color: "text-muted-foreground",
     },
     {
       title: "Active Streak",
-      value: `${profile?.activeStreak ?? 0} days`,
+      value: `${profile.activeStreak ?? 0} days`,
       change: "Keep the fire going!",
       icon: Zap,
       color: "text-primary",
     },
-  ], [profile]);
+  ]}, [profile]);
 
   if (loading) {
     return (
@@ -96,7 +105,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Progress Overview</CardTitle>
             <CardDescription>Comparison of key metrics this month.</CardDescription>
-          </CardHeader>
+          </Header>
           <CardContent className="pr-6">
             <ProgressOverviewChart data={profile?.progressOverview} />
           </CardContent>

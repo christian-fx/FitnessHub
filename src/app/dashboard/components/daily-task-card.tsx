@@ -83,7 +83,7 @@ export function DailyTaskCard() {
       if (!lastWorkoutDate || format(lastWorkoutDate, 'yyyy-MM-dd') !== todayStr) {
         if (lastWorkoutDate && differenceInCalendarDays(today, lastWorkoutDate) === 1) {
             newStreak += 1;
-        } else {
+        } else if (!lastWorkoutDate || differenceInCalendarDays(today, lastWorkoutDate) > 1) {
             newStreak = 1;
         }
         await updateDoc(userRef, {
@@ -122,7 +122,7 @@ export function DailyTaskCard() {
 
   return (
     <>
-      {isCompleted && <Confetti width={width} height={height} recycle={false} numberOfPieces={400} />}
+      {isCompleted && width && height && <Confetti width={width} height={height} recycle={false} numberOfPieces={400} />}
       <Card className="w-full bg-accent/20 border-accent/50 animate-in fade-in-50">
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -130,9 +130,11 @@ export function DailyTaskCard() {
                 <PartyPopper className="text-primary h-6 w-6" />
                 <CardTitle className="font-headline text-xl">Your Tiny Task for Today!</CardTitle>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDismiss}>
-              <X className="h-4 w-4" />
-            </Button>
+            {!isCompleted && (
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDismiss}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
