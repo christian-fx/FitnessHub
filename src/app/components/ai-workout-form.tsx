@@ -49,10 +49,6 @@ export function AIWorkoutForm() {
 
   const onSubmit = (values: FormData) => {
     startTransition(async () => {
-      // On a fresh submission, add the current plan (if any) to history
-      if (workoutPlan) {
-        setWorkoutHistory(prev => [workoutPlan, ...prev]);
-      }
       setWorkoutPlan(null); // Clear current plan to show loader
       const result = await getAIWorkout(values);
       if (result.success && result.data?.workoutPlan) {
