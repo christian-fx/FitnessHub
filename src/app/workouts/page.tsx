@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Dumbbell, Target, Repeat, PlayCircle, Zap, HeartPulse, Wind, ShieldCheck, BarChart } from 'lucide-react';
 import { WorkoutSession, type WorkoutPlan } from './components/workout-session';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const workoutPlans: WorkoutPlan[] = [
   {
