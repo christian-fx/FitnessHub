@@ -26,6 +26,7 @@ import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Notifications } from './notifications';
 import { ThemeToggle } from './theme-toggle';
+import { Footer } from './footer';
 
 const navItems = [
   { href: '/dashboard', icon: LineChart, label: 'Dashboard' },
@@ -67,6 +68,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
   }
 
+  const isLandingPage = pathname === '/' || pathname === '/landing';
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -105,12 +108,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     ))}
               </SidebarMenu>
             ) : (
-                <SidebarMenu className="p-2">
+                <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
                             icon={<Home />}
-                            isActive={pathname === '/' || pathname === '/landing'}
+                            isActive={pathname === '/'}
                         >
                             <Link href="/">Home</Link>
                         </SidebarMenuButton>
@@ -122,15 +125,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             isActive={pathname === '/ai'}
                         >
                             <Link href="/ai">AI Planner</Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            icon={<LogIn />}
-                            isActive={pathname === '/login'}
-                        >
-                            <Link href="/login">Login</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -193,9 +187,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           )}
         </header>
-        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-muted/30 min-h-[calc(100vh-4rem)]">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-muted/30 min-h-[calc(100vh-4rem-57px)]">
           {children}
         </main>
+        <Footer isLandingPage={isLandingPage} />
       </SidebarInset>
     </SidebarProvider>
   );
