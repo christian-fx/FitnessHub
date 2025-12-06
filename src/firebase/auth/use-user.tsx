@@ -11,6 +11,10 @@ export interface UserProfile {
     displayName: string | null;
     email: string | null;
     photoURL: string | null;
+    weight?: number;
+    height?: number;
+    age?: number;
+    gender?: 'male' | 'female' | 'not-specified';
     totalWorkouts?: number;
     recentWorkoutChange?: number;
     caloriesBurned?: number;
@@ -28,6 +32,10 @@ export interface UserProfile {
 export const createNewUserProfile = async (firestore: any, user: User, isReset = false) => {
     const userRef = doc(firestore, 'users', user.uid);
     const newUserProfile: Omit<UserProfile, 'uid' | 'displayName' | 'email' | 'photoURL'> = {
+      weight: 0,
+      height: 0,
+      age: 0,
+      gender: 'not-specified',
       totalWorkouts: 0,
       recentWorkoutChange: 0,
       caloriesBurned: 0,

@@ -24,8 +24,9 @@ import { Loader2, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { createNewUserProfile } from '@/firebase/auth/use-user';
+import { createNewUserProfile, UserProfile } from '@/firebase/auth/use-user';
 import { format, differenceInDays } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ProfilePage() {
   const { user, profile, loading: userLoading } = useUser();
@@ -36,6 +37,11 @@ export default function ProfilePage() {
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
+  const [weight, setWeight] = useState<number | ''>('');
+  const [height, setHeight] = useState<number | ''>('');
+  const [age, setAge] = useState<number | ''>('');
+  const [gender, setGender] = useState<'male' | 'female' | 'not-specified' | ''>('');
+
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isFreezing, setIsFreezing] = useState(false);
@@ -44,6 +50,10 @@ export default function ProfilePage() {
     if (user && profile) {
       setDisplayName(profile.displayName || '');
       setEmail(profile.email || '');
+      setWeight(profile.weight || '');
+      setHeight(profile.height || '');
+      setAge(profile.age || '');
+      setGender(profile.gender || 'not-specified');
     }
   }, [user, profile]);
 
@@ -52,7 +62,7 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
       const userDocRef = doc(firestore, 'users', user.uid);
-      const updatedProfileData: { displayName?: string; email?: string } = {};
+      const updatedProfileData: Partial<UserProfile> = {};
 
       if (displayName !== profile?.displayName) {
         await updateAuthProfile(user, { displayName });
@@ -62,6 +72,11 @@ export default function ProfilePage() {
         await updateEmail(user, email);
         updatedProfileData.email = email;
       }
+
+      updatedProfileData.weight = Number(weight);
+      updatedProfileData.height = Number(height);
+      updatedProfileData.age = Number(age);
+      updatedProfileData.gender = gender as UserProfile['gender'];
 
       if (Object.keys(updatedProfileData).length > 0) {
         await updateDoc(userDocRef, updatedProfileData);
@@ -222,6 +237,34 @@ export default function ProfilePage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)} 
                 />
+            </div>
+          </div>
+          <Separator />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+             <div className="space-y-2">
+              <Label htmlFor="weight">Weight (kg)</Label>
+              <Input id="weight" type="number" value={weight} onChange={(e) => setWeight(Number(e.target.value))} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="height">Height (cm)</Label>
+              <Input id="height" type="number" value={height} onChange={(e) => setHeight(Number(e.target.value))} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="age">Age</Label>
+              <Input id="age" type="number" value={age} onChange={(e) => setAge(Number(e.target.value))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+               <Select value={gender || 'not-specified'} onValueChange={(value) => setGender(value as 'male' | 'female' | 'not-specified')}>
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="not-specified">Prefer not to say</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
