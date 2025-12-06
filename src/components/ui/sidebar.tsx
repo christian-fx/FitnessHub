@@ -568,6 +568,13 @@ const SidebarMenuButton = React.forwardRef<
             onClick(event);
         }
     }
+    
+    const content = (
+      <>
+        {icon}
+        {children}
+      </>
+    );
 
     const button = (
         <Comp
@@ -579,8 +586,7 @@ const SidebarMenuButton = React.forwardRef<
             onClick={handleClick}
             {...props}
         >
-            {icon}
-            {children}
+            {asChild ? children : content}
         </Comp>
     );
 
