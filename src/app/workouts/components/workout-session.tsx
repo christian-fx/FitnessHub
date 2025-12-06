@@ -224,6 +224,7 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
                             size="icon"
                             onClick={handleNextExercise}
                             aria-label="Next Exercise"
+                            disabled={timer > 0}
                         >
                             <SkipForward />
                         </Button>
