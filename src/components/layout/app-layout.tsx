@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, LineChart, Dumbbell, Trophy, User, LogIn } from 'lucide-react';
+import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/icons';
@@ -29,6 +29,7 @@ const navItems = [
   { href: '/dashboard', icon: LineChart, label: 'Dashboard' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/challenges', icon: Trophy, label: 'Challenges' },
+  { href: '/log', icon: PlusSquare, label: 'Log Workout' },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -70,6 +71,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
             {loading ? (
                 <div className="flex flex-col gap-2 p-2">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
                     <Skeleton className="h-8 w-full" />
                     <Skeleton className="h-8 w-full" />
                     <Skeleton className="h-8 w-full" />
