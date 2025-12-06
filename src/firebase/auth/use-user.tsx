@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 
 // Define a type for the user profile data
@@ -21,6 +21,41 @@ export interface UserProfile {
     workoutHistory?: { month: string; workouts: number }[];
     progressOverview?: { metric: string; value: number }[];
 }
+
+const createNewUserProfile = async (firestore: any, user: User) => {
+    const userRef = doc(firestore, 'users', user.uid);
+    const newUserProfile: UserProfile = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      totalWorkouts: 0,
+      recentWorkoutChange: 0,
+      caloriesBurned: 0,
+      recentCaloriesChange: 0,
+      volumeLifted: 0,
+      recentVolumeChange: 0,
+      activeStreak: 0,
+      workoutHistory: [
+        { month: 'Jan', workouts: 0 },
+        { month: 'Feb', workouts: 0 },
+        { month: 'Mar', workouts: 0 },
+        { month: 'Apr', workouts: 0 },
+        { month: 'May', workouts: 0 },
+        { month: 'Jun', workouts: 0 },
+      ],
+      progressOverview: [
+        { metric: 'Strength', value: 0 },
+        { metric: 'Cardio', value: 0 },
+        { metric: 'Flexibility', value: 0 },
+        { metric: 'Endurance', value: 0 },
+        { metric: 'Balance', value: 0 },
+      ],
+    };
+    await setDoc(userRef, newUserProfile);
+    return newUserProfile;
+};
+
 
 export function useUser() {
   const auth = useAuth();
@@ -44,13 +79,13 @@ export function useUser() {
   useEffect(() => {
     if (user) {
       const docRef = doc(firestore, 'users', user.uid);
-      const unsubscribeProfile = onSnapshot(docRef, (docSnap) => {
+      const unsubscribeProfile = onSnapshot(docRef, async (docSnap) => {
         if (docSnap.exists()) {
           setProfile(docSnap.data() as UserProfile);
         } else {
-          // You might want to create a profile document here if it doesn't exist
-          console.log("No such document!");
-          setProfile(null);
+          // If profile doesn't exist, create one
+          const newProfile = await createNewUserProfile(firestore, user);
+          setProfile(newProfile);
         }
         setLoading(false);
       }, (error) => {
