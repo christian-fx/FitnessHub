@@ -193,7 +193,7 @@ export function AIWorkoutForm() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="p-4 bg-muted/50 rounded-lg">
+            <div key={workoutPlan} className="p-4 bg-muted/50 rounded-lg">
                 <div className="prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown>
                         {workoutPlan}
