@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, writeBatch, increment, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { doc, writeBatch, increment, Timestamp, serverTimestamp, collection } from 'firebase/firestore';
 import type { UserProfile } from '@/firebase/auth/use-user';
 import { format, differenceInCalendarDays } from 'date-fns';
 import { X, Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
@@ -118,7 +118,9 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
       const monthKey = format(workoutDate, 'MMM');
       const newWorkoutHistory = [...(profile.workoutHistory || [])];
       const monthIndex = newWorkoutHistory.findIndex(h => h.month === monthKey);
-      if (monthIndex > -1) newWorkoutHistory[monthIndex].workouts += 1;
+      if (monthIndex > -1) {
+          newWorkoutHistory[monthIndex] = { ...newWorkoutHistory[monthIndex], workouts: (newWorkoutHistory[monthIndex].workouts || 0) + 1};
+      }
       updates.workoutHistory = newWorkoutHistory;
       
       batch.update(userRef, updates as { [key: string]: any });
