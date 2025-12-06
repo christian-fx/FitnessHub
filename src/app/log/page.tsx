@@ -32,7 +32,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Dumbbell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, collection, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
+import { doc, collection, serverTimestamp, writeBatch, increment, getDoc } from 'firebase/firestore';
+import type { UserProfile } from '@/firebase/auth/use-user';
+import { format } from 'date-fns';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -41,6 +43,7 @@ const formSchema = z.object({
     .min(1, 'Duration must be at least 1 minute.')
     .positive(),
   caloriesBurned: z.coerce.number().min(0).optional(),
+  volumeLifted: z.coerce.number().min(0).optional(),
   date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Please enter a valid date",
   }),
@@ -52,22 +55,23 @@ type FormData = z.infer<typeof formSchema>;
 export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, profile } = useUser();
   const firestore = useFirestore();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      workoutType: '',
+      workoutType: 'Strength Training',
       duration: 60,
       caloriesBurned: 300,
+      volumeLifted: 1000,
       date: new Date().toISOString().split('T')[0],
       notes: '',
     },
   });
 
   const onSubmit = (values: FormData) => {
-    if (!user) {
+    if (!user || !profile) {
         toast({
             variant: "destructive",
             title: "Not Authenticated",
@@ -81,26 +85,68 @@ export default function LogWorkoutPage() {
         const workoutsCollectionRef = collection(userRef, 'workouts');
         const newWorkoutRef = doc(workoutsCollectionRef);
 
+        const workoutDate = new Date(values.date);
+
         const workoutPayload = {
           ...values,
-          date: new Date(values.date),
+          date: workoutDate,
           createdAt: serverTimestamp(),
         };
 
         const batch = writeBatch(firestore);
 
         batch.set(newWorkoutRef, workoutPayload);
-        batch.update(userRef, { totalWorkouts: increment(1) });
+        
+        // --- Update aggregated user profile data ---
+        const updates: Partial<UserProfile> = {};
+        
+        updates.totalWorkouts = increment(1);
+        
+        if (values.caloriesBurned) {
+          updates.caloriesBurned = increment(values.caloriesBurned);
+        }
+        if (values.volumeLifted) {
+          updates.volumeLifted = increment(values.volumeLifted);
+        }
+
+        // Update workout history for the month
+        const monthKey = format(workoutDate, 'MMM');
+        const newWorkoutHistory = [...(profile.workoutHistory || [])];
+        const monthIndex = newWorkoutHistory.findIndex(h => h.month === monthKey);
+        
+        if (monthIndex > -1) {
+            newWorkoutHistory[monthIndex].workouts = (newWorkoutHistory[monthIndex].workouts || 0) + 1;
+        }
+        updates.workoutHistory = newWorkoutHistory;
+
+        // Update progress overview based on workout type
+        const newProgressOverview = [...(profile.progressOverview || [])];
+        let metricToUpdate: string | null = null;
+        switch(values.workoutType) {
+            case 'Strength Training': metricToUpdate = 'Strength'; break;
+            case 'Cardio': metricToUpdate = 'Cardio'; break;
+            case 'Yoga': metricToUpdate = 'Flexibility'; break;
+            case 'HIIT': metricToUpdate = 'Endurance'; break;
+            case 'Stretching': metricToUpdate = 'Flexibility'; break;
+            case 'Other': metricToUpdate = 'Balance'; break;
+        }
+
+        if(metricToUpdate) {
+            const metricIndex = newProgressOverview.findIndex(p => p.metric === metricToUpdate);
+            if (metricIndex > -1) {
+                // simple increment, can be more complex later
+                newProgressOverview[metricIndex].value = (newProgressOverview[metricIndex].value || 0) + 2; 
+            }
+            updates.progressOverview = newProgressOverview;
+        }
+        
+        batch.update(userRef, updates);
         
         await batch.commit();
         
         toast({
           title: 'Workout Logged!',
-          description: 'Your workout has been successfully saved.',
-        });
-        form.reset({
-          ...form.getValues(),
-          date: new Date().toISOString().split('T')[0],
+          description: 'Your dashboard has been updated with your new workout.',
         });
 
       } catch (error: any) {
@@ -181,7 +227,7 @@ export default function LogWorkoutPage() {
                   name="caloriesBurned"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Calories Burned (optional)</FormLabel>
+                      <FormLabel>Calories Burned</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -195,12 +241,29 @@ export default function LogWorkoutPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="date"
+                  name="volumeLifted"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel>Volume Lifted (kg)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="For strength training"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
                       <FormLabel>Date of Workout</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type="date" {...field} className="w-full" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

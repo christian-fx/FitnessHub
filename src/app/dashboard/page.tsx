@@ -6,29 +6,30 @@ import { WorkoutHistoryChart } from "./components/workout-history-chart";
 import { ProgressOverviewChart } from "./components/progress-overview-chart";
 import { useUser } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 
 export default function DashboardPage() {
   const { user, profile, loading } = useUser();
 
-  const stats = [
+  const stats = useMemo(() => [
     {
       title: "Total Workouts",
-      value: profile?.totalWorkouts ?? 0,
-      change: `+${profile?.recentWorkoutChange ?? 0} since last month`,
+      value: profile?.totalWorkouts?.toLocaleString() ?? 0,
+      change: `+${profile?.recentWorkoutChange ?? 0} this month`,
       icon: Activity,
       color: "text-muted-foreground",
     },
     {
       title: "Calories Burned",
-      value: profile?.caloriesBurned ?? 0,
-      change: `+${profile?.recentCaloriesChange ?? 0} kcal since last month`,
+      value: profile?.caloriesBurned?.toLocaleString() ?? 0,
+      change: `+${profile?.recentCaloriesChange ?? 0} kcal this month`,
       icon: Flame,
       color: "text-accent",
     },
     {
       title: "Volume Lifted",
       value: `${(profile?.volumeLifted ?? 0).toLocaleString()} kg`,
-      change: `+${profile?.recentVolumeChange ?? 0}% since last month`,
+      change: `+${(profile?.recentVolumeChange ?? 0).toLocaleString()}% this month`,
       icon: Dumbbell,
       color: "text-muted-foreground",
     },
@@ -39,7 +40,7 @@ export default function DashboardPage() {
       icon: Zap,
       color: "text-primary",
     },
-  ];
+  ], [profile]);
 
   if (loading) {
     return (
