@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare } from 'lucide-react';
+import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/icons';
@@ -30,6 +30,7 @@ import { ThemeToggle } from './theme-toggle';
 const navItems = [
   { href: '/dashboard', icon: LineChart, label: 'Dashboard' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
+  { href: '/ai', icon: Wand2, label: 'AI Planner' },
   { href: '/challenges', icon: Trophy, label: 'Challenges' },
   { href: '/log', icon: PlusSquare, label: 'Log Workout' },
 ];
@@ -42,7 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    router.push('/login');
+    router.push('/');
   };
 
   const getInitials = (name: string | null | undefined) => {
@@ -55,12 +56,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // Handle full-page routes like login/signup
-  if (pathname === '/login' || pathname === '/signup') {
+  if (pathname === '/login' || pathname === '/signup' || (pathname === '/' && !user && !loading)) {
     return <>{children}</>;
   }
   
   const getPageTitle = () => {
     if (pathname === '/') return 'Home';
+    if (pathname === '/landing') return 'Welcome';
     const currentPath = pathname.split('/')[1];
     const navItem = navItems.find(item => item.href.includes(currentPath));
     return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
