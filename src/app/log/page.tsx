@@ -4,11 +4,9 @@ import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,13 +29,10 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Loader2, Dumbbell, CalendarIcon } from 'lucide-react';
+import { Loader2, Dumbbell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { logWorkout } from './actions';
-import { useUser } from '@/firebase';
-import { cn } from '@/lib/utils';
+import { useUser, useFirestore } from '@/firebase';
+import { runTransaction, doc, collection, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -46,7 +41,9 @@ const formSchema = z.object({
     .min(1, 'Duration must be at least 1 minute.')
     .positive(),
   caloriesBurned: z.coerce.number().min(0).optional(),
-  date: z.date(),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Please enter a valid date",
+  }),
   notes: z.string().optional(),
 });
 
@@ -56,6 +53,7 @@ export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const { user } = useUser();
+  const firestore = useFirestore();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -63,7 +61,7 @@ export default function LogWorkoutPage() {
       workoutType: '',
       duration: 60,
       caloriesBurned: 300,
-      date: new Date(),
+      date: new Date().toISOString().split('T')[0],
       notes: '',
     },
   });
@@ -78,19 +76,44 @@ export default function LogWorkoutPage() {
         return;
     }
     startTransition(async () => {
-      const result = await logWorkout(user.uid, values);
-      if (result.success) {
+      try {
+        const userRef = doc(firestore, 'users', user.uid);
+        const workoutsCollectionRef = collection(userRef, 'workouts');
+        const workoutPayload = {
+          ...values,
+          date: new Date(values.date),
+          createdAt: serverTimestamp(),
+        };
+
+        await runTransaction(firestore, async (transaction) => {
+          const userDoc = await transaction.get(userRef);
+          if (!userDoc.exists()) {
+            throw 'Document does not exist!';
+          }
+          
+          const currentWorkouts = userDoc.data()?.totalWorkouts || 0;
+
+          const newWorkoutRef = doc(workoutsCollectionRef);
+          transaction.set(newWorkoutRef, workoutPayload);
+
+          transaction.update(userRef, { totalWorkouts: currentWorkouts + 1 });
+        });
+        
         toast({
           title: 'Workout Logged!',
           description: 'Your workout has been successfully saved.',
         });
-        form.reset();
-      } else {
+        form.reset({
+          ...form.getValues(),
+          date: new Date().toISOString().split('T')[0],
+        });
+
+      } catch (error: any) {
         toast({
           variant: 'destructive',
           title: 'Error',
           description:
-            result.error || 'An unexpected error occurred while logging workout.',
+            error.message || 'An unexpected error occurred while logging workout.',
         });
       }
     });
@@ -180,37 +203,9 @@ export default function LogWorkoutPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date of Workout</FormLabel>
-                       <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
