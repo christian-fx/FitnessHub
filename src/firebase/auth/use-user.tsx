@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, Timestamp } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 
 // Define a type for the user profile data
@@ -18,6 +18,7 @@ export interface UserProfile {
     volumeLifted?: number;
     recentVolumeChange?: number;
     activeStreak?: number;
+    lastWorkoutDate?: string; // YYYY-MM-DD
     workoutHistory?: { month: string; workouts: number }[];
     progressOverview?: { metric: string; value: number }[];
 }
@@ -36,6 +37,7 @@ const createNewUserProfile = async (firestore: any, user: User) => {
       volumeLifted: 0,
       recentVolumeChange: 0,
       activeStreak: 0,
+      lastWorkoutDate: '',
       workoutHistory: [
         { month: 'Jan', workouts: 0 },
         { month: 'Feb', workouts: 0 },
@@ -81,7 +83,8 @@ export function useUser() {
       const docRef = doc(firestore, 'users', user.uid);
       const unsubscribeProfile = onSnapshot(docRef, async (docSnap) => {
         if (docSnap.exists()) {
-          setProfile(docSnap.data() as UserProfile);
+          const data = docSnap.data() as UserProfile;
+          setProfile(data);
         } else {
           // If profile doesn't exist, create one
           const newProfile = await createNewUserProfile(firestore, user);

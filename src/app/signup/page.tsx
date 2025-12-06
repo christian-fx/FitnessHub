@@ -47,34 +47,14 @@ export default function SignupPage() {
         displayName: displayName,
       });
 
+      // This data will now be created by the useUser hook automatically
+      // We just need to create the doc to trigger the hook.
       await setDoc(doc(firestore, "users", user.uid), {
         uid: user.uid,
         email: user.email,
         displayName: displayName,
         photoURL: user.photoURL,
-        totalWorkouts: 128,
-        recentWorkoutChange: 12,
-        caloriesBurned: 32450,
-        recentCaloriesChange: 2103,
-        volumeLifted: 150230,
-        recentVolumeChange: 15,
-        activeStreak: 24,
-        workoutHistory: [
-            { month: 'Jan', workouts: 18 },
-            { month: 'Feb', workouts: 22 },
-            { month: 'Mar', workouts: 25 },
-            { month: 'Apr', workouts: 20 },
-            { month: 'May', workouts: 28 },
-            { month: 'Jun', workouts: 26 },
-        ],
-        progressOverview: [
-            { metric: 'Strength', value: 80 },
-            { metric: 'Cardio', value: 90 },
-            { metric: 'Flexibility', value: 65 },
-            { metric: 'Endurance', value: 75 },
-            { metric: 'Balance', value: 85 },
-        ]
-      });
+      }, { merge: true });
       
       router.push('/dashboard');
       toast({

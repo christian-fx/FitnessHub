@@ -32,9 +32,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Dumbbell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, collection, serverTimestamp, writeBatch, increment, getDoc } from 'firebase/firestore';
+import { doc, collection, serverTimestamp, writeBatch, increment, getDoc, Timestamp } from 'firebase/firestore';
 import type { UserProfile } from '@/firebase/auth/use-user';
-import { format } from 'date-fns';
+import { format, subDays, differenceInCalendarDays } from 'date-fns';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -52,6 +52,15 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const defaultValues: FormData = {
+    workoutType: 'Strength Training',
+    duration: 60,
+    caloriesBurned: 300,
+    volumeLifted: 1000,
+    date: new Date().toISOString().split('T')[0],
+    notes: '',
+}
+
 export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -60,14 +69,7 @@ export default function LogWorkoutPage() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      workoutType: 'Strength Training',
-      duration: 60,
-      caloriesBurned: 300,
-      volumeLifted: 1000,
-      date: new Date().toISOString().split('T')[0],
-      notes: '',
-    },
+    defaultValues: defaultValues,
   });
 
   const onSubmit = (values: FormData) => {
@@ -86,10 +88,11 @@ export default function LogWorkoutPage() {
         const newWorkoutRef = doc(workoutsCollectionRef);
 
         const workoutDate = new Date(values.date);
+        const workoutDateStr = values.date; // YYYY-MM-DD
 
         const workoutPayload = {
           ...values,
-          date: workoutDate,
+          date: Timestamp.fromDate(workoutDate),
           createdAt: serverTimestamp(),
         };
 
@@ -97,7 +100,6 @@ export default function LogWorkoutPage() {
 
         batch.set(newWorkoutRef, workoutPayload);
         
-        // --- Update aggregated user profile data ---
         const updates: Partial<UserProfile> = {};
         
         updates.totalWorkouts = increment(1);
@@ -109,7 +111,26 @@ export default function LogWorkoutPage() {
           updates.volumeLifted = increment(values.volumeLifted);
         }
 
-        // Update workout history for the month
+        // --- Streak Logic ---
+        const lastWorkoutDate = profile.lastWorkoutDate ? new Date(profile.lastWorkoutDate) : null;
+        let newStreak = profile.activeStreak || 0;
+
+        if (lastWorkoutDate) {
+            const daysDifference = differenceInCalendarDays(workoutDate, lastWorkoutDate);
+            if (daysDifference === 1) {
+                newStreak += 1; // Consecutive day, increment streak
+            } else if (daysDifference > 1) {
+                newStreak = 1; // Missed a day, reset streak to 1
+            }
+            // if daysDifference is 0 or negative, do nothing (workout on same day or past)
+        } else {
+            newStreak = 1; // First workout
+        }
+        
+        updates.activeStreak = newStreak;
+        updates.lastWorkoutDate = workoutDateStr;
+
+
         const monthKey = format(workoutDate, 'MMM');
         const newWorkoutHistory = [...(profile.workoutHistory || [])];
         const monthIndex = newWorkoutHistory.findIndex(h => h.month === monthKey);
@@ -119,7 +140,6 @@ export default function LogWorkoutPage() {
         }
         updates.workoutHistory = newWorkoutHistory;
 
-        // Update progress overview based on workout type
         const newProgressOverview = [...(profile.progressOverview || [])];
         let metricToUpdate: string | null = null;
         switch(values.workoutType) {
@@ -134,13 +154,12 @@ export default function LogWorkoutPage() {
         if(metricToUpdate) {
             const metricIndex = newProgressOverview.findIndex(p => p.metric === metricToUpdate);
             if (metricIndex > -1) {
-                // simple increment, can be more complex later
                 newProgressOverview[metricIndex].value = (newProgressOverview[metricIndex].value || 0) + 2; 
             }
             updates.progressOverview = newProgressOverview;
         }
         
-        batch.update(userRef, updates);
+        batch.update(userRef, updates as { [key: string]: any });
         
         await batch.commit();
         
@@ -148,6 +167,7 @@ export default function LogWorkoutPage() {
           title: 'Workout Logged!',
           description: 'Your dashboard has been updated with your new workout.',
         });
+        form.reset(defaultValues);
 
       } catch (error: any) {
         console.error("Error logging workout:", error);
@@ -186,7 +206,7 @@ export default function LogWorkoutPage() {
                       <FormLabel>Workout Type</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -233,6 +253,7 @@ export default function LogWorkoutPage() {
                           type="number"
                           placeholder="e.g. 300"
                           {...field}
+                          value={field.value ?? ''}
                         />
                       </FormControl>
                       <FormMessage />
@@ -250,6 +271,7 @@ export default function LogWorkoutPage() {
                           type="number"
                           placeholder="For strength training"
                           {...field}
+                          value={field.value ?? ''}
                         />
                       </FormControl>
                       <FormMessage />
@@ -281,6 +303,7 @@ export default function LogWorkoutPage() {
                         placeholder="Any notes about your workout? e.g., 'Felt strong today, increased weight on squats.'"
                         {...field}
                         rows={4}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
