@@ -71,15 +71,16 @@ export function AIWorkoutForm() {
   }
 
   const handleNewPlan = () => {
+    if (workoutPlan) {
+      setWorkoutHistory(prev => [workoutPlan, ...prev]);
+    }
     setWorkoutPlan(null);
-    setWorkoutHistory([]);
     form.reset();
   }
 
   const handleRegenerate = () => {
     if (!workoutPlan) return;
     
-    // Add the current plan to history before generating a new one
     setWorkoutHistory(prev => [workoutPlan, ...prev]);
 
     // Re-run the submission logic with the current form values
@@ -234,7 +235,7 @@ export function AIWorkoutForm() {
             <CollapsibleTrigger asChild>
                 <Button variant="outline" className="w-full">
                     <History className="mr-2 h-4 w-4" />
-                    View History
+                    View History ({workoutHistory.length})
                     <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
             </CollapsibleTrigger>
@@ -265,3 +266,5 @@ export function AIWorkoutForm() {
     </div>
   );
 }
+
+    
