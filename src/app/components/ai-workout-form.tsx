@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Wand2, ArrowRight } from 'lucide-react';
+import { Loader2, Wand2, ArrowRight, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
@@ -59,6 +59,16 @@ export function AIWorkoutForm() {
       }
     });
   };
+
+  const handleCopy = () => {
+    if (workoutPlan) {
+        navigator.clipboard.writeText(workoutPlan);
+        toast({
+            title: "Copied to Clipboard",
+            description: "Your workout plan has been copied.",
+        });
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -130,7 +140,7 @@ export function AIWorkoutForm() {
               )}
             />
           </div>
-          <Button type="submit" disabled={isPending} size="lg">
+          <Button type="submit" disabled={isPending || workoutPlan !== null} size="lg">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
             Generate Plan
           </Button>
@@ -150,11 +160,16 @@ export function AIWorkoutForm() {
 
       {workoutPlan && (
         <Card className="animate-in fade-in-50">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2">
-                <Wand2 />
-                Your Personalized Workout Plan
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="space-y-1.5">
+                <CardTitle className="font-headline flex items-center gap-2">
+                    <Wand2 />
+                    Your Personalized Workout Plan
+                </CardTitle>
+            </div>
+            <Button variant="outline" size="icon" onClick={handleCopy}>
+                <Copy className="h-4 w-4" />
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-muted/50 rounded-lg">
