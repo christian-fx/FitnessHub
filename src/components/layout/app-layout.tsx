@@ -61,8 +61,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
   
   const getPageTitle = () => {
-    if (pathname === '/') return 'Home';
-    if (pathname === '/landing') return 'Welcome';
+    if (pathname === '/' || pathname === '/landing') return 'Welcome';
     const currentPath = pathname.split('/')[1];
     const navItem = navItems.find(item => item.href.includes(currentPath));
     return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
@@ -106,28 +105,35 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     ))}
               </SidebarMenu>
             ) : (
-                <div className="p-2">
-                     <SidebarMenuButton
-                        asChild
-                        icon={<Home />}
-                        isActive={pathname === '/'}
-                      >
-                        <Link href="/">Home</Link>
-                      </SidebarMenuButton>
-                      <SidebarMenuButton
-                        asChild
-                        icon={<Wand2 />}
-                        isActive={pathname === '/ai'}
-                      >
-                        <Link href="/ai">AI Planner</Link>
-                      </SidebarMenuButton>
-                    <SidebarMenuButton
-                        asChild
-                        icon={<LogIn />}
-                      >
-                        <Link href="/login">Login</Link>
-                    </SidebarMenuButton>
-                </div>
+                <SidebarMenu className="p-2">
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            icon={<Home />}
+                            isActive={pathname === '/' || pathname === '/landing'}
+                        >
+                            <Link href="/">Home</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            icon={<Wand2 />}
+                            isActive={pathname === '/ai'}
+                        >
+                            <Link href="/ai">AI Planner</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            icon={<LogIn />}
+                            isActive={pathname === '/login'}
+                        >
+                            <Link href="/login">Login</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             )}
         </SidebarContent>
       </Sidebar>
