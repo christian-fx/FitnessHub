@@ -13,11 +13,13 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Wand2, ArrowRight, Copy, RefreshCw, Sparkles } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, Wand2, ArrowRight, Copy, RefreshCw, Sparkles, History, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   fitnessGoals: z.string().min(10, 'Please describe your goals in more detail (at least 10 characters).'),
@@ -31,6 +33,7 @@ type FormData = z.infer<typeof formSchema>;
 export function AIWorkoutForm() {
   const [isPending, startTransition] = useTransition();
   const [workoutPlan, setWorkoutPlan] = useState<string | null>(null);
+  const [workoutHistory, setWorkoutHistory] = useState<string[]>([]);
   const { toast } = useToast();
   const { user } = useUser();
 
@@ -46,7 +49,10 @@ export function AIWorkoutForm() {
 
   const onSubmit = (values: FormData) => {
     startTransition(async () => {
-      setWorkoutPlan(null);
+      if (workoutPlan) {
+        setWorkoutHistory(prev => [workoutPlan, ...prev]);
+      }
+      setWorkoutPlan(null); // Clear current plan to show loader
       const result = await getAIWorkout(values);
       if (result.success && result.data?.workoutPlan) {
         setWorkoutPlan(result.data.workoutPlan);
@@ -60,18 +66,16 @@ export function AIWorkoutForm() {
     });
   };
 
-  const handleCopy = () => {
-    if (workoutPlan) {
-        navigator.clipboard.writeText(workoutPlan);
-        toast({
-            title: "Copied to Clipboard",
-            description: "Your workout plan has been copied.",
-        });
-    }
+  const handleCopy = (textToCopy: string) => {
+    navigator.clipboard.writeText(textToCopy);
+    toast({
+        title: "Copied to Clipboard",
+    });
   }
 
   const handleNewPlan = () => {
     setWorkoutPlan(null);
+    setWorkoutHistory([]);
     form.reset();
   }
 
@@ -184,10 +188,10 @@ export function AIWorkoutForm() {
                 </CardTitle>
             </div>
             <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={handleRegenerate} disabled={isPending}>
+                <Button variant="outline" size="icon" onClick={handleRegenerate} disabled={isPending} title="Regenerate">
                     <RefreshCw className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={handleCopy}>
+                <Button variant="outline" size="icon" onClick={() => handleCopy(workoutPlan)} title="Copy">
                     <Copy className="h-4 w-4" />
                 </Button>
             </div>
@@ -221,6 +225,40 @@ export function AIWorkoutForm() {
           </CardContent>
         </Card>
       )}
+
+    {workoutHistory.length > 0 && (
+        <Collapsible>
+            <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full">
+                    <History className="mr-2 h-4 w-4" />
+                    View History
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4 space-y-4 animate-in fade-in-50">
+                {workoutHistory.map((pastPlan, index) => (
+                    <Card key={index}>
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <CardDescription>Previous Plan {workoutHistory.length - index}</CardDescription>
+                                <Button variant="ghost" size="icon" onClick={() => handleCopy(pastPlan)}>
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                             <div className="p-4 bg-muted/50 rounded-lg">
+                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                    <ReactMarkdown>{pastPlan}</ReactMarkdown>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </CollapsibleContent>
+        </Collapsible>
+    )}
+
     </div>
   );
 }
