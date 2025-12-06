@@ -105,7 +105,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Progress Overview</CardTitle>
             <CardDescription>Comparison of key metrics this month.</CardDescription>
-          </Header>
+          </CardHeader>
           <CardContent className="pr-6">
             <ProgressOverviewChart data={profile?.progressOverview} />
           </CardContent>
