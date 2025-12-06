@@ -15,25 +15,28 @@ const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export function Footer({ isLandingPage = false }) {
+    const currentYear = new Date().getFullYear();
     return (
         <footer className="border-t bg-background">
-            <div className="container flex flex-col items-center justify-between gap-4 py-5 md:flex-row">
-                <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-                    <Logo />
-                    <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                        Built by You. Powered by AI.
-                    </p>
+            <div className="container flex flex-col md:flex-row items-center justify-between gap-6 py-6 text-sm">
+                <div className="flex flex-col items-center md:items-start gap-2 text-muted-foreground">
+                    <p className="font-semibold text-foreground">Fitness Hub</p>
+                    <p className="text-center md:text-left">Built for you, powered by Ai.</p>
+                    <p>&copy; {currentYear} Fitness Hub. All Rights Reserved.</p>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    {isLandingPage && (
-                        <>
-                            <Link href="#" className="hover:text-foreground">Terms of Use</Link>
-                            <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
-                        </>
-                    )}
-                     <Link href="#" className="hover:text-foreground">Contact Us</Link>
-                    <Link href="#" className="hover:text-foreground">Help</Link>
-                    <div className="flex items-center gap-3">
+
+                <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-right">
+                    <div className="flex gap-4">
+                        {isLandingPage && (
+                            <>
+                                <Link href="#" className="hover:text-foreground">Terms of Use</Link>
+                                <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
+                            </>
+                        )}
+                        <Link href="#" className="hover:text-foreground">Contact Us</Link>
+                        <Link href="#" className="hover:text-foreground">Help</Link>
+                    </div>
+                    <div className="flex items-center gap-4">
                         <Link href="#" aria-label="X social media link">
                             <XIcon className="h-5 w-5 hover:text-foreground" />
                         </Link>
