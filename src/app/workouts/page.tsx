@@ -109,7 +109,7 @@ const workoutPlans: WorkoutPlan[] = [
       { name: 'Hanging Leg Raises', details: '3 sets of 15 reps', duration: 180, muscles: ['Lower Abs'] },
       { name: 'Cable Crunches', details: '3 sets of 15-20 reps', duration: 180, muscles: ['Abs'] },
       { name: 'Russian Twists (with weight)', details: '3 sets of 15 reps (each side)', duration: 120, muscles: ['Obliques'] },
-      { name 'Plank', details: '3 sets, hold for 90s', duration: 270, muscles: ['Core'] },
+      { name: 'Plank', details: '3 sets, hold for 90s', duration: 270, muscles: ['Core'] },
       { name: 'Ab Rollouts', details: '3 sets of 10-12 reps', duration: 180, muscles: ['Core', 'Abs'] },
     ],
   },
