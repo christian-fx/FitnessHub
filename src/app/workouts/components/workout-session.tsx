@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -18,6 +19,7 @@ export interface Exercise {
   details: string;
   duration: number; // Duration in seconds
   muscles: string[];
+  imageUrl: string;
 }
 
 export interface WorkoutPlan {
@@ -193,6 +195,15 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
                 </div>
             ) : (
                 <>
+                    <div className="relative h-64 w-full bg-muted rounded-lg mb-4 overflow-hidden">
+                        <Image 
+                            src={currentExercise.imageUrl} 
+                            alt={currentExercise.name}
+                            fill
+                            className="object-contain"
+                            data-ai-hint={`${currentExercise.muscles.join(' ')} exercise`}
+                        />
+                    </div>
                     <h2 className="text-2xl font-semibold">{currentExercise.name}</h2>
                     <p className="text-muted-foreground mb-1">{currentExercise.details}</p>
                     <p className="text-xs text-muted-foreground mb-8">Muscles: {currentExercise.muscles.join(', ')}</p>
