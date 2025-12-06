@@ -24,6 +24,7 @@ import { signOut } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Notifications } from './notifications';
+import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -118,6 +119,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           ) : user ? (
             <div className="flex items-center gap-2">
               <Notifications />
+              <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -153,9 +155,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </DropdownMenu>
             </div>
           ) : (
-            <Button asChild>
-                <Link href="/login">Log In</Link>
-            </Button>
+             <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button asChild>
+                    <Link href="/login">Log In</Link>
+                </Button>
+            </div>
           )}
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8 bg-muted/30 min-h-[calc(100vh-4rem)]">
