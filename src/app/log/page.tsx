@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { format } from 'date-fns';
 import {
   Form,
   FormControl,
@@ -31,10 +32,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Loader2, Dumbbell } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Loader2, Dumbbell, CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { logWorkout } from './actions';
 import { useUser } from '@/firebase';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -171,28 +174,48 @@ export default function LogWorkoutPage() {
                     </FormItem>
                   )}
                 />
-              </div>
-               <FormField
+                <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col items-center">
+                    <FormItem>
                       <FormLabel>Date of Workout</FormLabel>
-                      <FormControl>
-                        <Calendar
+                       <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                              date > new Date() || date < new Date('1900-01-01')
+                              date > new Date() || date < new Date("1900-01-01")
                             }
-                            className="rounded-md border"
+                            initialFocus
                           />
-                      </FormControl>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
               <FormField
                 control={form.control}
                 name="notes"
