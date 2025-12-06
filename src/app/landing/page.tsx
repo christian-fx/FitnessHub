@@ -6,9 +6,9 @@ import Image from "next/image";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-[calc(100vh-57px)]">
       <main className="flex-grow">
-        <section className="relative text-center py-20 md:py-32 bg-card border-b -mt-8">
+        <section className="relative text-center py-20 md:py-32 bg-card border-b">
           <div className="relative z-10 px-4 container">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
               Your Personal AI Fitness Coach

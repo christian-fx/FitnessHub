@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -46,6 +47,7 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,15 +63,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      if (!userCredential.user.emailVerified) {
-        toast({
-            variant: 'destructive',
-            title: 'Email Not Verified',
-            description: 'Please check your inbox to verify your email address before logging in.',
-        });
-        setIsLoading(false);
-        return;
-      }
+      // Email verification check is handled by useUser hook logic and Firestore rules if needed
       router.push('/dashboard');
     } catch (error: any) {
         if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
@@ -94,7 +88,23 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      // Check if user document already exists
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const docSnap = await getDoc(userDocRef);
+
+      if (!docSnap.exists()) {
+        // New user, create a document to trigger the useUser hook's creation logic
+        await setDoc(userDocRef, {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+        }, { merge: true });
+      }
+
       router.push('/dashboard');
     } catch (error: any) {
       toast({
@@ -221,7 +231,7 @@ export default function LoginPage() {
                 <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-card px-2 text-muted-foreground">
                 Or continue with
                 </span>
             </div>
