@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { getAIWorkout } from '@/app/ai/actions';
+import ReactMarkdown from 'react-markdown';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -153,9 +154,17 @@ export function AIWorkoutForm() {
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-muted/50 rounded-lg">
-              <div className="text-sm text-foreground max-w-none whitespace-pre-wrap font-body leading-relaxed">
+              <ReactMarkdown 
+                className="prose prose-sm dark:prose-invert max-w-none"
+                components={{
+                    h3: ({node, ...props}) => <h3 className="text-lg font-semibold font-headline text-foreground" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-2" {...props} />,
+                    li: ({node, ...props}) => <li className="text-foreground" {...props} />,
+                    strong: ({node, ...props}) => <strong className="font-bold text-primary" {...props} />,
+                }}
+              >
                   {workoutPlan}
-              </div>
+              </ReactMarkdown>
             </div>
           </CardContent>
         </Card>
