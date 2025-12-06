@@ -56,7 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // Handle full-page routes like login/signup
-  if (pathname === '/login' || pathname === '/signup' || (pathname === '/' && !user && !loading)) {
+  if (pathname === '/login' || pathname === '/signup') {
     return <>{children}</>;
   }
   
@@ -95,7 +95,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         <SidebarMenuButton
                             asChild
                             icon={<item.icon />}
-                            isActive={pathname === item.href}
+                            isActive={pathname.startsWith(item.href)}
                             tooltip={item.label}
                         >
                             <Link href={item.href}>
@@ -113,6 +113,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         isActive={pathname === '/'}
                       >
                         <Link href="/">Home</Link>
+                      </SidebarMenuButton>
+                      <SidebarMenuButton
+                        asChild
+                        icon={<Wand2 />}
+                        isActive={pathname === '/ai'}
+                      >
+                        <Link href="/ai">AI Planner</Link>
                       </SidebarMenuButton>
                     <SidebarMenuButton
                         asChild

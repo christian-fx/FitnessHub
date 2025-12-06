@@ -1,13 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Wand2 } from "lucide-react";
+import { ArrowRight, Wand2, LineChart, Trophy } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPage() {
   return (
     <div className="container mx-auto px-0 -mt-8">
       <section className="relative text-center py-20 md:py-32 bg-card border-b">
-        <div className="relative z-10">
+        <div className="relative z-10 px-4">
           <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight">
             Your Personal AI Fitness Coach
           </h1>
@@ -15,7 +15,7 @@ export default function LandingPage() {
             Achieve your fitness goals with personalized workout plans, progress
             tracking, and community challenges. All powered by AI.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button asChild size="lg">
               <Link href="/signup">
                 Get Started for Free <ArrowRight className="ml-2" />
@@ -38,8 +38,8 @@ export default function LandingPage() {
                     Everything you need to stay on track, get stronger, and achieve your fitness ambitions.
                 </p>
             </div>
-            <div className="mt-12 grid md:grid-cols-3 gap-8">
-                <div className="flex flex-col items-center text-center">
+            <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
+                <div className="flex flex-col items-center">
                     <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary">
                         <Wand2 className="h-8 w-8" />
                     </div>
@@ -48,7 +48,7 @@ export default function LandingPage() {
                         Get workout routines tailored to your goals, equipment, and fitness level.
                     </p>
                 </div>
-                 <div className="flex flex-col items-center text-center">
+                 <div className="flex flex-col items-center">
                     <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary">
                         <LineChart className="h-8 w-8" />
                     </div>
@@ -57,7 +57,7 @@ export default function LandingPage() {
                         Log every workout and see your strength, endurance, and consistency improve over time.
                     </p>
                 </div>
-                 <div className="flex flex-col items-center text-center">
+                 <div className="flex flex-col items-center">
                     <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary">
                         <Trophy className="h-8 w-8" />
                     </div>
@@ -72,5 +72,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-import { LineChart, Trophy } from "lucide-react";
