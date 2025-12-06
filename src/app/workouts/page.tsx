@@ -10,7 +10,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, Target, Repeat, PlayCircle, Zap, HeartPulse, Wind, ShieldCheck, BarChart, Leaf } from 'lucide-react';
+import { Dumbbell, Target, Repeat, PlayCircle, Zap, HeartPulse, Wind, ShieldCheck, Leaf } from 'lucide-react';
 import { WorkoutSession, type WorkoutPlan } from './components/workout-session';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -26,11 +26,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Beginner',
     exercises: [
-      { name: 'Jumping Jacks', details: 'Warm-up for 60 seconds', duration: 60, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/101/600/400' },
-      { name: 'Bodyweight Squats', details: '3 sets of 10-15 reps', duration: 180, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/102/600/400' },
-      { name: 'Knee Push-ups', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Chest', 'Triceps'], imageUrl: 'https://picsum.photos/seed/103/600/400' },
-      { name: 'Plank', details: '3 sets, hold for 30 seconds', duration: 150, muscles: ['Core'], imageUrl: 'https://picsum.photos/seed/104/600/400' },
-      { name: 'Glute Bridges', details: '3 sets of 15 reps', duration: 120, muscles: ['Glutes', 'Hamstrings'], imageUrl: 'https://picsum.photos/seed/105/600/400' },
+      { name: 'Jumping Jacks', details: 'Warm-up for 60 seconds', duration: 60, muscles: ['Full Body'] },
+      { name: 'Bodyweight Squats', details: '3 sets of 10-15 reps', duration: 180, muscles: ['Quads', 'Glutes'] },
+      { name: 'Knee Push-ups', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Chest', 'Triceps'] },
+      { name: 'Plank', details: '3 sets, hold for 30 seconds', duration: 150, muscles: ['Core'] },
+      { name: 'Glute Bridges', details: '3 sets of 15 reps', duration: 120, muscles: ['Glutes', 'Hamstrings'] },
     ],
   },
   {
@@ -40,10 +40,10 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Cardio',
     difficulty: 'Beginner',
     exercises: [
-      { name: 'Brisk Walking', details: '15 min, steady pace', duration: 900, muscles: ['Legs', 'Cardio'], imageUrl: 'https://picsum.photos/seed/106/600/400' },
-      { name: 'Jogging in Place', details: '5 min, moderate effort', duration: 300, muscles: ['Legs', 'Cardio'], imageUrl: 'https://picsum.photos/seed/107/600/400' },
-      { name: 'Jumping Jacks', details: '4 sets of 45 seconds', duration: 240, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/108/600/400' },
-      { name: 'High Knees', details: '4 sets of 30 seconds', duration: 180, muscles: ['Full Body', 'Cardio'], imageUrl: 'https://picsum.photos/seed/109/600/400' },
+      { name: 'Brisk Walking', details: '15 min, steady pace', duration: 900, muscles: ['Legs', 'Cardio'] },
+      { name: 'Jogging in Place', details: '5 min, moderate effort', duration: 300, muscles: ['Legs', 'Cardio'] },
+      { name: 'Jumping Jacks', details: '4 sets of 45 seconds', duration: 240, muscles: ['Full Body'] },
+      { name: 'High Knees', details: '4 sets of 30 seconds', duration: 180, muscles: ['Full Body', 'Cardio'] },
     ],
   },
   {
@@ -53,10 +53,10 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Flexibility',
     difficulty: 'Beginner',
     exercises: [
-      { name: 'Dynamic Stretching', details: '10 minutes of gentle movements', duration: 600, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/110/600/400' },
-      { name: 'Beginner Yoga Flow', details: '20 minutes of basic poses', duration: 1200, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/111/600/400' },
-      { name: 'Deep Breathing', details: '5 minutes of focused breathing', duration: 300, muscles: ['Mind'], imageUrl: 'https://picsum.photos/seed/112/600/400' },
-      { name: 'Static Stretches (Hold 30s each)', details: '10 minutes', duration: 600, muscles: ['Legs', 'Back', 'Chest'], imageUrl: 'https://picsum.photos/seed/113/600/400' },
+      { name: 'Dynamic Stretching', details: '10 minutes of gentle movements', duration: 600, muscles: ['Full Body'] },
+      { name: 'Beginner Yoga Flow', details: '20 minutes of basic poses', duration: 1200, muscles: ['Full Body'] },
+      { name: 'Deep Breathing', details: '5 minutes of focused breathing', duration: 300, muscles: ['Mind'] },
+      { name: 'Static Stretches (Hold 30s each)', details: '10 minutes', duration: 600, muscles: ['Legs', 'Back', 'Chest'] },
     ],
   },
   {
@@ -66,9 +66,9 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Balance',
     difficulty: 'Beginner',
     exercises: [
-      { name: 'Light Walk', details: '20 minutes', duration: 1200, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/114/600/400' },
-      { name: 'Full Body Stretching', details: '15 minutes', duration: 900, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/115/600/400' },
-      { name: 'Foam Roll', details: '10 minutes, focus on tight areas', duration: 600, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/116/600/400' },
+      { name: 'Light Walk', details: '20 minutes', duration: 1200, muscles: ['Full Body'] },
+      { name: 'Full Body Stretching', details: '15 minutes', duration: 900, muscles: ['Full Body'] },
+      { name: 'Foam Roll', details: '10 minutes, focus on tight areas', duration: 600, muscles: ['Full Body'] },
     ],
   },
   {
@@ -78,10 +78,10 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Beginner',
     exercises: [
-      { name: 'Dumbbell Goblet Squats', details: '3 sets of 10 reps', duration: 180, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/117/600/400' },
-      { name: 'Dumbbell Rows', details: '3 sets of 12 reps per arm', duration: 240, muscles: ['Back', 'Biceps'], imageUrl: 'https://picsum.photos/seed/118/600/400' },
-      { name: 'Dumbbell Bench Press', details: '3 sets of 10 reps', duration: 180, muscles: ['Chest', 'Triceps'], imageUrl: 'https://picsum.photos/seed/119/600/400' },
-      { name: 'Dumbbell Bicep Curls', details: '3 sets of 12 reps', duration: 150, muscles: ['Biceps'], imageUrl: 'https://picsum.photos/seed/120/600/400' },
+      { name: 'Dumbbell Goblet Squats', details: '3 sets of 10 reps', duration: 180, muscles: ['Quads', 'Glutes'] },
+      { name: 'Dumbbell Rows', details: '3 sets of 12 reps per arm', duration: 240, muscles: ['Back', 'Biceps'] },
+      { name: 'Dumbbell Bench Press', details: '3 sets of 10 reps', duration: 180, muscles: ['Chest', 'Triceps'] },
+      { name: 'Dumbbell Bicep Curls', details: '3 sets of 12 reps', duration: 150, muscles: ['Biceps'] },
     ],
   },
   // Intermediate
@@ -92,11 +92,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Intermediate',
     exercises: [
-      { name: 'Barbell Squats', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/121/600/400' },
-      { name: 'Bench Press', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Chest', 'Triceps'], imageUrl: 'https://picsum.photos/seed/122/600/400' },
-      { name: 'Deadlifts', details: '3 sets of 5-8 reps', duration: 240, muscles: ['Back', 'Hamstrings'], imageUrl: 'https://picsum.photos/seed/123/600/400' },
-      { name: 'Overhead Press', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Shoulders'], imageUrl: 'https://picsum.photos/seed/124/600/400' },
-      { name: 'Pull-ups / Lat Pulldowns', details: '3 sets to failure or 10-12 reps', duration: 150, muscles: ['Back', 'Biceps'], imageUrl: 'https://picsum.photos/seed/125/600/400' },
+      { name: 'Barbell Squats', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Quads', 'Glutes'] },
+      { name: 'Bench Press', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Chest', 'Triceps'] },
+      { name: 'Deadlifts', details: '3 sets of 5-8 reps', duration: 240, muscles: ['Back', 'Hamstrings'] },
+      { name: 'Overhead Press', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Shoulders'] },
+      { name: 'Pull-ups / Lat Pulldowns', details: '3 sets to failure or 10-12 reps', duration: 150, muscles: ['Back', 'Biceps'] },
     ],
   },
   {
@@ -106,11 +106,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Intermediate',
     exercises: [
-      { name: 'Hanging Leg Raises', details: '3 sets of 15 reps', duration: 180, muscles: ['Lower Abs'], imageUrl: 'https://picsum.photos/seed/126/600/400' },
-      { name: 'Cable Crunches', details: '3 sets of 15-20 reps', duration: 180, muscles: ['Abs'], imageUrl: 'https://picsum.photos/seed/127/600/400' },
-      { name: 'Russian Twists (with weight)', details: '3 sets of 15 reps (each side)', duration: 120, muscles: ['Obliques'], imageUrl: 'https://picsum.photos/seed/128/600/400' },
-      { name: 'Plank', details: '3 sets, hold for 90s', duration: 270, muscles: ['Core'], imageUrl: 'https://picsum.photos/seed/129/600/400' },
-      { name: 'Ab Rollouts', details: '3 sets of 10-12 reps', duration: 180, muscles: ['Core', 'Abs'], imageUrl: 'https://picsum.photos/seed/130/600/400' },
+      { name: 'Hanging Leg Raises', details: '3 sets of 15 reps', duration: 180, muscles: ['Lower Abs'] },
+      { name: 'Cable Crunches', details: '3 sets of 15-20 reps', duration: 180, muscles: ['Abs'] },
+      { name: 'Russian Twists (with weight)', details: '3 sets of 15 reps (each side)', duration: 120, muscles: ['Obliques'] },
+      { name: 'Plank', details: '3 sets, hold for 90s', duration: 270, muscles: ['Core'] },
+      { name: 'Ab Rollouts', details: '3 sets of 10-12 reps', duration: 180, muscles: ['Core', 'Abs'] },
     ],
   },
   {
@@ -120,10 +120,10 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Endurance',
     difficulty: 'Intermediate',
     exercises: [
-        { name: 'Interval Run', details: '5 min warm up, then 8x 400m sprint, 90s rest', duration: 2400, muscles: ['Legs', 'Cardio'], imageUrl: 'https://picsum.photos/seed/131/600/400' },
-        { name: 'Kettlebell Swings', details: '5 sets of 20 reps', duration: 300, muscles: ['Glutes', 'Hamstrings', 'Back'], imageUrl: 'https://picsum.photos/seed/132/600/400' },
-        { name: 'Rowing Machine', details: '2000m for time', duration: 600, muscles: ['Full Body', 'Cardio'], imageUrl: 'https://picsum.photos/seed/133/600/400' },
-        { name: 'Box Jumps', details: '4 sets of 12 reps', duration: 240, muscles: ['Legs', 'Glutes'], imageUrl: 'https://picsum.photos/seed/134/600/400' },
+        { name: 'Interval Run', details: '5 min warm up, then 8x 400m sprint, 90s rest', duration: 2400, muscles: ['Legs', 'Cardio'] },
+        { name: 'Kettlebell Swings', details: '5 sets of 20 reps', duration: 300, muscles: ['Glutes', 'Hamstrings', 'Back'] },
+        { name: 'Rowing Machine', details: '2000m for time', duration: 600, muscles: ['Full Body', 'Cardio'] },
+        { name: 'Box Jumps', details: '4 sets of 12 reps', duration: 240, muscles: ['Legs', 'Glutes'] },
     ],
   },
   {
@@ -133,11 +133,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Intermediate',
     exercises: [
-        { name: 'Incline Dumbbell Press', details: '4 sets of 10-12 reps', duration: 240, muscles: ['Upper Chest'], imageUrl: 'https://picsum.photos/seed/135/600/400' },
-        { name: 'Seated Cable Rows', details: '4 sets of 10-12 reps', duration: 240, muscles: ['Back'], imageUrl: 'https://picsum.photos/seed/136/600/400' },
-        { name: 'Lateral Raises', details: '4 sets of 15-20 reps', duration: 200, muscles: ['Shoulders'], imageUrl: 'https://picsum.photos/seed/137/600/400' },
-        { name: 'Tricep Pushdowns', details: '3 sets of 12-15 reps', duration: 150, muscles: ['Triceps'], imageUrl: 'https://picsum.photos/seed/138/600/400' },
-        { name: 'Face Pulls', details: '3 sets of 15-20 reps', duration: 150, muscles: ['Rear Delts', 'Back'], imageUrl: 'https://picsum.photos/seed/139/600/400' },
+        { name: 'Incline Dumbbell Press', details: '4 sets of 10-12 reps', duration: 240, muscles: ['Upper Chest'] },
+        { name: 'Seated Cable Rows', details: '4 sets of 10-12 reps', duration: 240, muscles: ['Back'] },
+        { name: 'Lateral Raises', details: '4 sets of 15-20 reps', duration: 200, muscles: ['Shoulders'] },
+        { name: 'Tricep Pushdowns', details: '3 sets of 12-15 reps', duration: 150, muscles: ['Triceps'] },
+        { name: 'Face Pulls', details: '3 sets of 15-20 reps', duration: 150, muscles: ['Rear Delts', 'Back'] },
     ],
   },
   {
@@ -147,11 +147,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Intermediate',
     exercises: [
-        { name: 'Leg Press', details: '4 sets of 10-15 reps', duration: 240, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/140/600/400' },
-        { name: 'Romanian Deadlifts', details: '4 sets of 10-12 reps', duration: 240, muscles: ['Hamstrings', 'Glutes'], imageUrl: 'https://picsum.photos/seed/141/600/400' },
-        { name: 'Bulgarian Split Squats', details: '3 sets of 12 reps per leg', duration: 300, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/142/600/400' },
-        { name: 'Leg Curls', details: '3 sets of 15-20 reps', duration: 150, muscles: ['Hamstrings'], imageUrl: 'https://picsum.photos/seed/143/600/400' },
-        { name: 'Calf Raises', details: '4 sets of 20 reps', duration: 180, muscles: ['Calves'], imageUrl: 'https://picsum.photos/seed/144/600/400' },
+        { name: 'Leg Press', details: '4 sets of 10-15 reps', duration: 240, muscles: ['Quads', 'Glutes'] },
+        { name: 'Romanian Deadlifts', details: '4 sets of 10-12 reps', duration: 240, muscles: ['Hamstrings', 'Glutes'] },
+        { name: 'Bulgarian Split Squats', details: '3 sets of 12 reps per leg', duration: 300, muscles: ['Quads', 'Glutes'] },
+        { name: 'Leg Curls', details: '3 sets of 15-20 reps', duration: 150, muscles: ['Hamstrings'] },
+        { name: 'Calf Raises', details: '4 sets of 20 reps', duration: 180, muscles: ['Calves'] },
     ],
   },
   // Advanced
@@ -162,12 +162,12 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Endurance',
     difficulty: 'Advanced',
     exercises: [
-      { name: 'Burpee Box Jumps', details: '45s on, 15s rest', duration: 60, muscles: ['Full Body', 'Cardio'], imageUrl: 'https://picsum.photos/seed/145/600/400' },
-      { name: 'Kettlebell Snatches', details: '45s on, 15s rest', duration: 60, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/146/600/400' },
-      { name: 'Assault Bike Sprint', details: '45s on, 15s rest', duration: 60, muscles: ['Full Body', 'Cardio'], imageUrl: 'https://picsum.photos/seed/147/600/400' },
-      { name: 'Toes-to-Bar', details: '45s on, 15s rest', duration: 60, muscles: ['Core', 'Abs'], imageUrl: 'https://picsum.photos/seed/148/600/400' },
-      { name: 'Rest', details: '3 minutes', duration: 180, muscles: [], imageUrl: 'https://picsum.photos/seed/149/600/400' },
-      { name: 'Repeat Circuit', details: '4 more times', duration: 0, muscles: [], imageUrl: 'https://picsum.photos/seed/150/600/400' },
+      { name: 'Burpee Box Jumps', details: '45s on, 15s rest', duration: 60, muscles: ['Full Body', 'Cardio'] },
+      { name: 'Kettlebell Snatches', details: '45s on, 15s rest', duration: 60, muscles: ['Full Body'] },
+      { name: 'Assault Bike Sprint', details: '45s on, 15s rest', duration: 60, muscles: ['Full Body', 'Cardio'] },
+      { name: 'Toes-to-Bar', details: '45s on, 15s rest', duration: 60, muscles: ['Core', 'Abs'] },
+      { name: 'Rest', details: '3 minutes', duration: 180, muscles: [] },
+      { name: 'Repeat Circuit', details: '4 more times', duration: 0, muscles: [] },
     ],
   },
   {
@@ -177,11 +177,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Strength',
     difficulty: 'Advanced',
     exercises: [
-        { name: 'Heavy Squats', details: '5 sets of 3-5 reps', duration: 300, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/151/600/400' },
-        { name: 'Heavy Bench Press', details: '5 sets of 3-5 reps', duration: 300, muscles: ['Chest', 'Triceps'], imageUrl: 'https://picsum.photos/seed/152/600/400' },
-        { name: 'Power Cleans', details: '5 sets of 3 reps', duration: 300, muscles: ['Full Body', 'Power'], imageUrl: 'https://picsum.photos/seed/153/600/400' },
-        { name: 'Weighted Pull-ups', details: '4 sets of 5-8 reps', duration: 240, muscles: ['Back', 'Biceps'], imageUrl: 'https://picsum.photos/seed/154/600/400' },
-        { name: 'Push Press', details: '4 sets of 5 reps', duration: 240, muscles: ['Shoulders', 'Triceps'], imageUrl: 'https://picsum.photos/seed/155/600/400' },
+        { name: 'Heavy Squats', details: '5 sets of 3-5 reps', duration: 300, muscles: ['Quads', 'Glutes'] },
+        { name: 'Heavy Bench Press', details: '5 sets of 3-5 reps', duration: 300, muscles: ['Chest', 'Triceps'] },
+        { name: 'Power Cleans', details: '5 sets of 3 reps', duration: 300, muscles: ['Full Body', 'Power'] },
+        { name: 'Weighted Pull-ups', details: '4 sets of 5-8 reps', duration: 240, muscles: ['Back', 'Biceps'] },
+        { name: 'Push Press', details: '4 sets of 5 reps', duration: 240, muscles: ['Shoulders', 'Triceps'] },
     ],
   },
   {
@@ -191,11 +191,11 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Endurance',
     difficulty: 'Advanced',
     exercises: [
-        { name: 'For Time: 1-mile run', details: 'As fast as possible', duration: 480, muscles: ['Cardio'], imageUrl: 'https://picsum.photos/seed/156/600/400' },
-        { name: '100 Pull-ups', details: 'Partition as needed', duration: 600, muscles: ['Back', 'Biceps'], imageUrl: 'https://picsum.photos/seed/157/600/400' },
-        { name: '200 Push-ups', details: 'Partition as needed', duration: 720, muscles: ['Chest', 'Triceps'], imageUrl: 'https://picsum.photos/seed/158/600/400' },
-        { name: '300 Squats', details: 'Partition as needed', duration: 900, muscles: ['Quads', 'Glutes'], imageUrl: 'https://picsum.photos/seed/159/600/400' },
-        { name: 'For Time: 1-mile run', details: 'As fast as possible', duration: 480, muscles: ['Cardio'], imageUrl: 'https://picsum.photos/seed/160/600/400' },
+        { name: 'For Time: 1-mile run', details: 'As fast as possible', duration: 480, muscles: ['Cardio'] },
+        { name: '100 Pull-ups', details: 'Partition as needed', duration: 600, muscles: ['Back', 'Biceps'] },
+        { name: '200 Push-ups', details: 'Partition as needed', duration: 720, muscles: ['Chest', 'Triceps'] },
+        { name: '300 Squats', details: 'Partition as needed', duration: 900, muscles: ['Quads', 'Glutes'] },
+        { name: 'For Time: 1-mile run', details: 'As fast as possible', duration: 480, muscles: ['Cardio'] },
     ],
   },
   {
@@ -205,10 +205,10 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Flexibility',
     difficulty: 'Advanced',
     exercises: [
-        { name: 'Handstand Practice', details: '15 minutes against a wall', duration: 900, muscles: ['Shoulders', 'Core'], imageUrl: 'https://picsum.photos/seed/161/600/400' },
-        { name: 'Advanced Vinyasa Flow', details: '45 minutes, complex sequences', duration: 2700, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/162/600/400' },
-        { name: 'Deep Hip Openers', details: '10 minutes, poses like pigeon and lizard', duration: 600, muscles: ['Hips', 'Glutes'], imageUrl: 'https://picsum.photos/seed/163/600/400' },
-        { name: 'Forearm Stand Practice', details: '10 minutes', duration: 600, muscles: ['Shoulders', 'Core', 'Back'], imageUrl: 'https://picsum.photos/seed/164/600/400' },
+        { name: 'Handstand Practice', details: '15 minutes against a wall', duration: 900, muscles: ['Shoulders', 'Core'] },
+        { name: 'Advanced Vinyasa Flow', details: '45 minutes, complex sequences', duration: 2700, muscles: ['Full Body'] },
+        { name: 'Deep Hip Openers', details: '10 minutes, poses like pigeon and lizard', duration: 600, muscles: ['Hips', 'Glutes'] },
+        { name: 'Forearm Stand Practice', details: '10 minutes', duration: 600, muscles: ['Shoulders', 'Core', 'Back'] },
     ],
   },
   {
@@ -218,10 +218,10 @@ const workoutPlans: WorkoutPlan[] = [
     metric: 'Cardio',
     difficulty: 'Advanced',
     exercises: [
-        { name: 'AMRAP 20 (As Many Rounds As Possible)', details: '20-minute continuous circuit', duration: 1200, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/165/600/400' },
-        { name: '5 Burpees', details: 'Part of the AMRAP circuit', duration: 0, muscles: ['Full Body'], imageUrl: 'https://picsum.photos/seed/166/600/400' },
-        { name: '10 Thrusters (95/65 lb)', details: 'Part of the AMRAP circuit', duration: 0, muscles: ['Legs', 'Shoulders'], imageUrl: 'https://picsum.photos/seed/167/600/400' },
-        { name: '15 Kettlebell Swings (53/35 lb)', details: 'Part of the AMRAP circuit', duration: 0, muscles: ['Glutes', 'Hamstrings'], imageUrl: 'https://picsum.photos/seed/168/600/400' },
+        { name: 'AMRAP 20 (As Many Rounds As Possible)', details: '20-minute continuous circuit', duration: 1200, muscles: ['Full Body'] },
+        { name: '5 Burpees', details: 'Part of the AMRAP circuit', duration: 0, muscles: ['Full Body'] },
+        { name: '10 Thrusters (95/65 lb)', details: 'Part of the AMRAP circuit', duration: 0, muscles: ['Legs', 'Shoulders'] },
+        { name: '15 Kettlebell Swings (53/35 lb)', details: 'Part of the AMRAP circuit', duration: 0, muscles: ['Glutes', 'Hamstrings'] },
     ],
   },
 ];
