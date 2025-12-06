@@ -28,7 +28,6 @@ import { Notifications } from './notifications';
 import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Home' },
   { href: '/dashboard', icon: LineChart, label: 'Dashboard' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/challenges', icon: Trophy, label: 'Challenges' },
@@ -62,7 +61,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   
   const getPageTitle = () => {
     if (pathname === '/') return 'Home';
-    const navItem = navItems.find(item => item.href === pathname);
+    const currentPath = pathname.split('/')[1];
+    const navItem = navItems.find(item => item.href.includes(currentPath));
     return navItem?.label ?? (pathname === '/profile' ? 'Profile' : 'Fitness Hub');
   }
 
@@ -90,30 +90,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenu>
                     {navItems.map((item) => (
                     <SidebarMenuItem key={item.label}>
-                        <Link href={item.href} passHref legacyBehavior>
                         <SidebarMenuButton
+                            asChild
                             icon={<item.icon />}
                             isActive={pathname === item.href}
                             tooltip={item.label}
                         >
-                            {item.label}
+                            <Link href={item.href}>
+                                {item.label}
+                            </Link>
                         </SidebarMenuButton>
-                        </Link>
                     </SidebarMenuItem>
                     ))}
               </SidebarMenu>
             ) : (
                 <div className="p-2">
-                     <Link href="/" passHref legacyBehavior>
-                        <SidebarMenuButton icon={<Home />} isActive={pathname === '/'}>
-                            Home
-                        </SidebarMenuButton>
-                    </Link>
-                    <Link href="/login" passHref legacyBehavior>
-                        <SidebarMenuButton icon={<LogIn />}>
-                            Login
-                        </SidebarMenuButton>
-                    </Link>
+                     <SidebarMenuButton
+                        asChild
+                        icon={<Home />}
+                        isActive={pathname === '/'}
+                      >
+                        <Link href="/">Home</Link>
+                      </SidebarMenuButton>
+                    <SidebarMenuButton
+                        asChild
+                        icon={<LogIn />}
+                      >
+                        <Link href="/login">Login</Link>
+                    </SidebarMenuButton>
                 </div>
             )}
         </SidebarContent>
@@ -149,19 +153,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href="/profile" passHref>
-                      <DropdownMenuItem asChild>
-                          <div className="cursor-pointer">
-                              <User className="mr-2 h-4 w-4" />
-                              <span>Profile</span>
-                          </div>
-                      </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem onClick={handleSignOut}>
-                      <div className="cursor-pointer">
-                          <LogIn className="mr-2 h-4 w-4" />
-                          <span>Log out</span>
-                      </div>
+                  <DropdownMenuItem asChild>
+                      <Link href="/profile" className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profile</span>
+                      </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

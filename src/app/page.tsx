@@ -1,16 +1,52 @@
 
+'use client';
+
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { AIWorkoutForm } from "./components/ai-workout-form";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Wand2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Wand2 } from "lucide-react";
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
+  const { user, loading } = useUser();
+  const router = useRouter();
 
-  const heroImage = PlaceHolderImages.find(img => img.id === 'challengeRunning');
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  if (loading || user) {
+    return (
+        <div className="space-y-6">
+            <Skeleton className="h-48 w-full" />
+            <div className="py-16">
+                <Card className="w-full shadow-lg">
+                    <CardHeader>
+                        <Skeleton className="h-10 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Skeleton className="h-24" />
+                                <Skeleton className="h-24" />
+                                <Skeleton className="h-10" />
+                                <Skeleton className="h-10" />
+                            </div>
+                            <Skeleton className="h-11 w-40" />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-0 -mt-8">
