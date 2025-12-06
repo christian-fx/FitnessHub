@@ -20,11 +20,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { createNewUserProfile } from '@/firebase/auth/use-user';
+import { format, differenceInDays } from 'date-fns';
 
 export default function ProfilePage() {
   const { user, profile, loading: userLoading } = useUser();
@@ -37,6 +38,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isFreezing, setIsFreezing] = useState(false);
 
   React.useEffect(() => {
     if (user && profile) {
@@ -107,6 +109,28 @@ export default function ProfilePage() {
     router.push('/login');
   };
 
+  const handleStreakFreeze = async () => {
+    if (!user) return;
+    setIsFreezing(true);
+    try {
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
+      const userDocRef = doc(firestore, 'users', user.uid);
+      await updateDoc(userDocRef, { streakFreezeLastUsed: todayStr, lastWorkoutDate: todayStr });
+      toast({
+        title: "Streak Freeze Activated!",
+        description: "Your streak is safe for today. Keep up the great work!",
+      });
+    } catch(e: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Error Activating Freeze',
+        description: e.message || 'An unexpected error occurred.',
+      });
+    } finally {
+      setIsFreezing(false);
+    }
+  }
+
   const getInitials = (name: string | null | undefined) => {
     if (!name) return 'U';
     const names = name.split(' ');
@@ -116,9 +140,16 @@ export default function ProfilePage() {
     return name.charAt(0);
   }
 
+  const canUseStreakFreeze = React.useMemo(() => {
+    if (!profile?.streakFreezeLastUsed) return true;
+    const lastUsed = new Date(profile.streakFreezeLastUsed);
+    const today = new Date();
+    return differenceInDays(today, lastUsed) >= 7;
+  }, [profile?.streakFreezeLastUsed]);
+
   if (userLoading) {
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-8">
             <Card>
                 <CardHeader>
                     <Skeleton className="h-8 w-32" />
@@ -201,6 +232,47 @@ export default function ProfilePage() {
           </Button>
           <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
         </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center gap-2 text-primary">
+            <ShieldCheck />
+            Streak Insurance
+          </CardTitle>
+          <CardDescription>
+            About to lose your streak due to travel, exams, or a rainy day? Use your weekly Streak Freeze to protect it.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" disabled={!canUseStreakFreeze || isFreezing}>
+                {isFreezing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Use Streak Freeze
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Activate Streak Freeze?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will use your weekly streak freeze and protect your streak for today. You can use this once every 7 days.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleStreakFreeze}>
+                  Yes, freeze my streak
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+        {!canUseStreakFreeze && (
+            <CardFooter>
+                 <p className='text-xs text-muted-foreground'>You can use Streak Freeze again in {7 - differenceInDays(new Date(), new Date(profile?.streakFreezeLastUsed || ''))} days.</p>
+            </CardFooter>
+        )}
       </Card>
       
       <Card className="border-destructive/50">

@@ -21,6 +21,7 @@ export interface UserProfile {
     lastWorkoutDate?: string; // YYYY-MM-DD
     workoutHistory?: { month: string; workouts: number }[];
     progressOverview?: { metric: string; value: number }[];
+    streakFreezeLastUsed?: string; // YYYY-MM-DD
 }
 
 export const createNewUserProfile = async (firestore: any, user: User, isReset = false) => {
@@ -34,6 +35,7 @@ export const createNewUserProfile = async (firestore: any, user: User, isReset =
       recentVolumeChange: 0,
       activeStreak: 0,
       lastWorkoutDate: '',
+      streakFreezeLastUsed: '',
       workoutHistory: [
         { month: 'Jan', workouts: 0 },
         { month: 'Feb', workouts: 0 },

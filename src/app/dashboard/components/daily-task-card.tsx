@@ -7,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { tinyDailyTasks } from '@/lib/daily-tasks';
 import { PartyPopper, X, Check } from 'lucide-react';
 import { useWindowSize } from '@/hooks/use-window-size';
-
+import { useUser, useFirestore } from '@/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
+import { format, differenceInCalendarDays } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 const getDayOfYear = () => {
   const now = new Date();
@@ -22,7 +25,9 @@ export function DailyTaskCard() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [task, setTask] = useState<string | null>(null);
   const { width, height } = useWindowSize();
-
+  const { user, profile } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -42,8 +47,51 @@ export function DailyTaskCard() {
     setIsVisible(false);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    if (!user || !profile) {
+      toast({
+          variant: "destructive",
+          title: "Not Authenticated",
+          description: "You must be logged in to complete a task.",
+      });
+      return;
+    }
+    
     setIsCompleted(true);
+    
+    try {
+      const userRef = doc(firestore, 'users', user.uid);
+      const today = new Date();
+      const todayStr = format(today, 'yyyy-MM-dd');
+      
+      const lastWorkoutDate = profile.lastWorkoutDate ? new Date(profile.lastWorkoutDate) : null;
+      let newStreak = profile.activeStreak || 0;
+
+      if (!lastWorkoutDate || format(lastWorkoutDate, 'yyyy-MM-dd') !== todayStr) {
+        if (lastWorkoutDate && differenceInCalendarDays(today, lastWorkoutDate) === 1) {
+            newStreak += 1;
+        } else {
+            newStreak = 1;
+        }
+        await updateDoc(userRef, {
+            activeStreak: newStreak,
+            lastWorkoutDate: todayStr,
+        });
+         toast({
+            title: "Streak Updated!",
+            description: `You're on a ${newStreak}-day streak!`,
+        });
+      }
+
+    } catch(e) {
+      console.error("Failed to update streak", e);
+      toast({
+        variant: "destructive",
+        title: "Error updating streak",
+        description: "Could not save your progress, but great job on the task!",
+      })
+    }
+
     setTimeout(() => {
         handleDismiss();
     }, 5000); // Hide card after 5 seconds of confetti
