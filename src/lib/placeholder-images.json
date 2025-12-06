@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "challengeRunning",
+      "description": "A person running on a path at sunrise",
+      "imageUrl": "https://images.unsplash.com/photo-1457449205106-d0aad138e99b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwZXJzb24lMjBydW5uaW5nfGVufDB8fHx8MTc2NDg3Nzg0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person running"
+    },
+    {
+      "id": "challengePushups",
+      "description": "A person doing a push-up in a gym",
+      "imageUrl": "https://images.unsplash.com/photo-1678889284225-ea51a28c4fad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBwdXNodXB8ZW58MHx8fHwxNzY1MDAxMTQ3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person pushup"
+    },
+    {
+      "id": "challengeYoga",
+      "description": "A person in a yoga pose on a mat outdoors",
+      "imageUrl": "https://images.unsplash.com/photo-1608272003912-cfe78f13fc68?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjB5b2dhfGVufDB8fHx8MTc2NDk1ODgxMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person yoga"
+    },
+    {
+      "id": "challengeSteps",
+      "description": "A group of people hiking on a trail",
+      "imageUrl": "https://images.unsplash.com/photo-1551632811-561732d1e306?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZW9wbGUlMjBoaWtpbmd8ZW58MHx8fHwxNzY1MDAxMTQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "people hiking"
+    }
+  ]
 }

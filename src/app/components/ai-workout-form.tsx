@@ -1,0 +1,165 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { getAIWorkout } from '@/app/ai/actions';
+
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Wand2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+const formSchema = z.object({
+  fitnessGoals: z.string().min(10, 'Please describe your goals in more detail (at least 10 characters).'),
+  fitnessLevel: z.enum(['beginner', 'intermediate', 'advanced']),
+  availableEquipment: z.string().min(3, 'Please list equipment or "bodyweight" (at least 3 characters).'),
+  existingHealthRecommendations: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+export function AIWorkoutForm() {
+  const [isPending, startTransition] = useTransition();
+  const [workoutPlan, setWorkoutPlan] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fitnessGoals: '',
+      fitnessLevel: 'beginner',
+      availableEquipment: '',
+      existingHealthRecommendations: '',
+    },
+  });
+
+  const onSubmit = (values: FormData) => {
+    startTransition(async () => {
+      setWorkoutPlan(null);
+      const result = await getAIWorkout(values);
+      if (result.success && result.data?.workoutPlan) {
+        setWorkoutPlan(result.data.workoutPlan);
+      } else {
+        toast({
+            variant: "destructive",
+            title: "Error Generating Plan",
+            description: result.error || 'An unexpected error occurred.',
+        });
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-8">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="fitnessGoals"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fitness Goals</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="e.g., Lose 10 pounds, run a 5k, build upper body strength" {...field} rows={4} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="availableEquipment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Available Equipment</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="e.g., Dumbbells, resistance bands, treadmill, or just bodyweight" {...field} rows={4} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="fitnessLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fitness Level</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your fitness level" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="existingHealthRecommendations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Health Recommendations</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Optional: e.g., Avoid high-impact exercises" {...field} />
+                  </FormControl>
+                   <FormDescription>
+                    Any specific advice from a health professional.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button type="submit" disabled={isPending} size="lg">
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+            Generate Plan
+          </Button>
+        </form>
+      </Form>
+
+      {isPending && (
+        <Card>
+            <CardContent className="pt-6">
+                <div className="flex flex-col items-center justify-center space-y-4 p-8 bg-muted/50 rounded-lg">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <p className="text-muted-foreground font-semibold">Our AI is crafting your personalized workout plan...</p>
+                </div>
+            </CardContent>
+        </Card>
+      )}
+
+      {workoutPlan && (
+        <Card className="animate-in fade-in-50">
+          <CardHeader>
+            <CardTitle className="font-headline flex items-center gap-2">
+                <Wand2 />
+                Your Personalized Workout Plan
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="text-sm text-foreground max-w-none whitespace-pre-wrap font-body leading-relaxed">
+                  {workoutPlan}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
