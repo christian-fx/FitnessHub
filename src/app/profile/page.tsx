@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState } from 'useState';
 import { useUser, useAuth } from '@/firebase';
 import { signOut, updateProfile as updateAuthProfile, updateEmail } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -61,6 +61,12 @@ export default function ProfilePage() {
   React.useEffect(() => {
     resetFormState();
   }, [resetFormState]);
+
+  React.useEffect(() => {
+    if (!userLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, userLoading, router]);
 
   const handleSaveChanges = async () => {
     if (!user) return;
@@ -175,7 +181,7 @@ export default function ProfilePage() {
     return differenceInDays(today, lastUsed) >= 7;
   }, [profile?.streakFreezeLastUsed]);
 
-  if (userLoading) {
+  if (userLoading || !user) {
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <Card>
@@ -203,13 +209,6 @@ export default function ProfilePage() {
             </Card>
         </div>
     )
-  }
-  
-  if (!user) {
-    if (typeof window !== 'undefined') {
-        router.push('/login');
-    }
-    return null;
   }
 
   return (
