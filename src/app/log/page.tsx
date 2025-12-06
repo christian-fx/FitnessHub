@@ -29,14 +29,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Loader2, Dumbbell, Calendar as CalendarIcon, Flame } from 'lucide-react';
+import { Loader2, Dumbbell, Flame } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, collection, serverTimestamp, writeBatch, increment, getDoc, Timestamp } from 'firebase/firestore';
+import { doc, collection, serverTimestamp, writeBatch, increment, Timestamp } from 'firebase/firestore';
 import type { UserProfile } from '@/firebase/auth/use-user';
-import { format, subDays, differenceInCalendarDays } from 'date-fns';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { format, subDays, differenceInCalendarDays, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -48,9 +46,9 @@ const formSchema = z.object({
     .min(1, 'Duration must be at least 1 minute.')
     .positive(),
   volumeLifted: z.coerce.number().min(0).optional(),
-  date: z.date({
+  date: z.string({
     required_error: "A date is required.",
-  }),
+  }).refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format" }),
   notes: z.string().optional(),
 });
 
@@ -76,7 +74,7 @@ export default function LogWorkoutPage() {
     workoutType: 'Strength Training',
     duration: 60,
     volumeLifted: 1000,
-    date: new Date(),
+    date: format(new Date(), 'yyyy-MM-dd'),
     notes: '',
   }), []);
 
@@ -100,7 +98,7 @@ export default function LogWorkoutPage() {
         const workoutsCollectionRef = collection(userRef, 'workouts');
         const newWorkoutRef = doc(workoutsCollectionRef);
 
-        const workoutDate = values.date;
+        const workoutDate = parseISO(values.date);
         const workoutDateStr = format(workoutDate, 'yyyy-MM-dd');
         
         const metValue = MET_VALUES[values.workoutType as keyof typeof MET_VALUES] || 4.0;
@@ -120,7 +118,7 @@ export default function LogWorkoutPage() {
 
         batch.set(newWorkoutRef, workoutPayload);
         
-        const updates: Partial<UserProfile> = {};
+        const updates: Partial<UserProfile> & { [key: string]: any } = {};
         
         updates.totalWorkouts = increment(1);
         updates.caloriesBurned = increment(calculatedCalories);
@@ -264,37 +262,14 @@ export default function LogWorkoutPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Date of Workout</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <FormControl>
+                        <Input 
+                            type="date" 
+                            {...field} 
+                            className="w-full"
+                            max={format(new Date(), "yyyy-MM-dd")}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

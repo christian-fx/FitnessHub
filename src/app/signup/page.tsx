@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -35,6 +37,15 @@ export default function SignupPage() {
             variant: "destructive",
             title: "Sign Up Failed",
             description: "Password must be at least 6 characters long.",
+        });
+        setIsLoading(false);
+        return;
+    }
+    if (!agreedToTerms) {
+        toast({
+            variant: "destructive",
+            title: "Sign Up Failed",
+            description: "You must agree to the Terms of Use.",
         });
         setIsLoading(false);
         return;
@@ -142,7 +153,20 @@ export default function SignupPage() {
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <div className="flex items-center space-x-2">
+                <Checkbox 
+                    id="terms" 
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                />
+                <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
+                    I agree to the{' '}
+                    <Link href="/terms" className="underline hover:text-primary">
+                        Terms of Use
+                    </Link>
+                </Label>
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading || !agreedToTerms}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create an account
             </Button>
