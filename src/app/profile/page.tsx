@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'useState';
+import { useState } from 'react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut, updateProfile as updateAuthProfile, updateEmail } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
