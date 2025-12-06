@@ -30,21 +30,34 @@ export function DailyTaskCard() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const taskState = localStorage.getItem('dailyTaskState');
-
-    if (taskState !== today) {
-      const dayIndex = getDayOfYear();
-      const dailyTask = tinyDailyTasks[dayIndex % tinyDailyTasks.length];
-      setTask(dailyTask);
-      setIsVisible(true);
+    if (profile) {
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
+      if (profile.dailyTaskLastCompleted !== todayStr) {
+        const dayIndex = getDayOfYear();
+        const dailyTask = tinyDailyTasks[dayIndex % tinyDailyTasks.length];
+        setTask(dailyTask);
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
     }
-  }, []);
+  }, [profile]);
 
-  const handleDismiss = () => {
-    const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem('dailyTaskState', today);
-    setIsVisible(false);
+  const handleDismiss = async () => {
+    if (!user) return;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const userRef = doc(firestore, 'users', user.uid);
+    try {
+      await updateDoc(userRef, { dailyTaskLastCompleted: today });
+      setIsVisible(false);
+    } catch(e) {
+      console.error("Failed to dismiss task", e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not dismiss task. Please try again.",
+      });
+    }
   };
 
   const handleComplete = async () => {
@@ -76,10 +89,16 @@ export function DailyTaskCard() {
         await updateDoc(userRef, {
             activeStreak: newStreak,
             lastWorkoutDate: todayStr,
+            dailyTaskLastCompleted: todayStr, // Also update this field
         });
          toast({
             title: "Streak Updated!",
             description: `You're on a ${newStreak}-day streak!`,
+        });
+      } else {
+        // If they already worked out today, just update the daily task completion
+        await updateDoc(userRef, {
+            dailyTaskLastCompleted: todayStr,
         });
       }
 
@@ -93,11 +112,11 @@ export function DailyTaskCard() {
     }
 
     setTimeout(() => {
-        handleDismiss();
+        setIsVisible(false);
     }, 5000); // Hide card after 5 seconds of confetti
   };
 
-  if (!isVisible) {
+  if (!isVisible || !task) {
     return null;
   }
 
