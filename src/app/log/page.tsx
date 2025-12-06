@@ -37,6 +37,8 @@ import type { UserProfile } from '@/firebase/auth/use-user';
 import { format, subDays, differenceInCalendarDays, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import Confetti from 'react-confetti';
+import { useWindowSize } from '@/hooks/use-window-size';
 
 
 const formSchema = z.object({
@@ -65,10 +67,12 @@ const MET_VALUES = {
 
 export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [caloriesBurned, setCaloriesBurned] = useState<number | null>(null);
   const { toast } = useToast();
   const { user, profile } = useUser();
   const firestore = useFirestore();
+  const { width, height } = useWindowSize();
 
   const defaultValues: FormData = useMemo(() => ({
     workoutType: 'Strength Training',
@@ -179,6 +183,8 @@ export default function LogWorkoutPage() {
         
         await batch.commit();
         form.reset(defaultValues);
+        setShowCompletionDialog(true);
+        setTimeout(() => setShowCompletionDialog(false), 8000); // Hide after 8 seconds
 
       } catch (error: any) {
         console.error("Error logging workout:", error);
@@ -195,10 +201,11 @@ export default function LogWorkoutPage() {
 
   return (
     <>
+    {showCompletionDialog && width && height && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} tweenDuration={5000} />}
     <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2">
+          <CardTitle className="font-semibold flex items-center gap-2">
             <Dumbbell className="text-primary"/>
             Log a New Workout
           </CardTitle>
@@ -263,10 +270,10 @@ export default function LogWorkoutPage() {
                     <FormItem className="flex flex-col">
                       <FormLabel>Date of Workout</FormLabel>
                       <FormControl>
-                        <Input 
+                        <input 
                             type="date" 
                             {...field} 
-                            className="w-full"
+                            className={cn("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50")}
                             max={format(new Date(), "yyyy-MM-dd")}
                         />
                       </FormControl>
@@ -324,13 +331,13 @@ export default function LogWorkoutPage() {
       </Card>
     </div>
 
-    <AlertDialog open={caloriesBurned !== null} onOpenChange={() => setCaloriesBurned(null)}>
+    <AlertDialog open={showCompletionDialog} onOpenChange={() => setShowCompletionDialog(false)}>
         <AlertDialogContent>
             <AlertDialogHeader className="items-center text-center">
             <div className="rounded-full bg-primary/10 p-4 w-fit">
                 <Flame className="h-12 w-12 text-primary" />
             </div>
-            <AlertDialogTitle className="text-2xl font-headline">Workout Logged!</AlertDialogTitle>
+            <AlertDialogTitle className="text-2xl font-semibold">Workout Logged!</AlertDialogTitle>
             <AlertDialogDescription>
                 Great job on completing your workout. Your dashboard has been updated.
             </AlertDialogDescription>
@@ -340,7 +347,7 @@ export default function LogWorkoutPage() {
                 <p className="text-4xl font-bold text-primary">{caloriesBurned}</p>
             </div>
             <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setCaloriesBurned(null)}>
+            <AlertDialogAction onClick={() => setShowCompletionDialog(false)}>
                 Awesome!
             </AlertDialogAction>
             </AlertDialogFooter>

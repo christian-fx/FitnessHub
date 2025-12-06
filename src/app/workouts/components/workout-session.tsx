@@ -2,14 +2,14 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, writeBatch, increment, Timestamp, serverTimestamp, collection } from 'firebase/firestore';
 import type { UserProfile } from '@/firebase/auth/use-user';
 import { format, differenceInCalendarDays } from 'date-fns';
-import { X, Play, Pause, SkipForward, RotateCcw, HelpCircle } from 'lucide-react';
+import { X, Play, Pause, SkipForward, RotateCcw, HelpCircle, Flame } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 
@@ -36,6 +36,15 @@ interface WorkoutSessionProps {
   onClose: () => void;
 }
 
+const MET_VALUES = {
+    'Strength': 5.0,
+    'Cardio': 8.0,
+    'Flexibility': 2.5,
+    'Endurance': 11.0,
+    'Balance': 4.0,
+    'Default': 6.0,
+}
+
 export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
   const [currentExerciseIndex, setCurrentExerciseIndex] = React.useState(0);
   const [timer, setTimer] = React.useState(plan.exercises[0].duration);
@@ -48,6 +57,13 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
   const { toast } = useToast();
   
   const totalWorkoutDuration = React.useMemo(() => plan.exercises.reduce((sum, ex) => sum + ex.duration, 0), [plan.exercises]);
+  const caloriesBurned = React.useMemo(() => {
+    if (!profile) return 0;
+    const metValue = MET_VALUES[plan.metric as keyof typeof MET_VALUES] || MET_VALUES.Default;
+    const userWeight = profile.weight || 70;
+    const durationInMinutes = totalWorkoutDuration / 60;
+    return Math.round((durationInMinutes * metValue * 3.5 * userWeight) / 200);
+  }, [plan, profile, totalWorkoutDuration]);
 
 
   React.useEffect(() => {
@@ -98,7 +114,7 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
       const workoutPayload = {
         workoutType: plan.title,
         duration: totalWorkoutDuration / 60, // in minutes
-        caloriesBurned: Math.round(totalWorkoutDuration / 60 * 8), // rough estimate
+        caloriesBurned: caloriesBurned,
         date: Timestamp.fromDate(workoutDate),
         createdAt: serverTimestamp(),
         notes: `Completed workout plan: ${plan.title}`,
@@ -189,8 +205,15 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
         <CardContent className="text-center">
             {isCompleted ? (
                 <div className="flex flex-col items-center justify-center p-8 gap-4">
+                    <div className="rounded-full bg-primary/10 p-4 w-fit">
+                        <Flame className="h-12 w-12 text-primary" />
+                    </div>
                     <h2 className="text-3xl font-bold text-primary">Workout Complete!</h2>
                     <p className="text-muted-foreground">You rocked it! Ready to log this session?</p>
+                     <div className="rounded-lg bg-muted p-4 text-center my-4">
+                        <p className="text-sm text-muted-foreground">Estimated Calories Burned</p>
+                        <p className="text-4xl font-bold text-primary">{caloriesBurned}</p>
+                    </div>
                     <Button size="lg" onClick={handleFinishWorkout}>Finish & Log Workout</Button>
                 </div>
             ) : (
@@ -258,6 +281,9 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
                 </>
             )}
         </CardContent>
+         {!isCompleted && <CardFooter className='flex justify-center text-xs text-muted-foreground'>
+            <p>Approximate calories burned for this entire workout: <span className="font-bold text-primary">{caloriesBurned}</span></p>
+        </CardFooter>}
       </Card>
     </div>
     <AlertDialog open={isClosing} onOpenChange={setIsClosing}>

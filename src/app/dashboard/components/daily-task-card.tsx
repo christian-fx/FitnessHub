@@ -129,7 +129,7 @@ export function DailyTaskCard() {
           <div className="flex items-start justify-between">
             <div className='flex items-center gap-2'>
                 <PartyPopper className="text-primary h-6 w-6" />
-                <CardTitle className="font-headline text-xl">Your Tiny Task for Today!</CardTitle>
+                <CardTitle className="font-semibold text-xl">Your Tiny Task for Today!</CardTitle>
             </div>
             {!isCompleted && (
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDismiss}>
