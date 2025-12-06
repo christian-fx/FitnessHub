@@ -10,7 +10,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, Target, Repeat, PlayCircle } from 'lucide-react';
+import { Dumbbell, Target, Repeat, PlayCircle, Zap, HeartPulse, Wind } from 'lucide-react';
 import { WorkoutSession, type WorkoutPlan } from './components/workout-session';
 
 const workoutPlans: WorkoutPlan[] = [
@@ -18,6 +18,7 @@ const workoutPlans: WorkoutPlan[] = [
     title: 'Full Body Strength',
     goal: 'Build overall muscle and strength',
     daysPerWeek: 3,
+    metric: 'Strength',
     exercises: [
       { name: 'Squats', details: '3 sets of 8-12 reps', duration: 180 },
       { name: 'Bench Press', details: '3 sets of 8-12 reps', duration: 180 },
@@ -30,6 +31,7 @@ const workoutPlans: WorkoutPlan[] = [
     title: 'Cardio Burn',
     goal: 'Improve cardiovascular health and endurance',
     daysPerWeek: 4,
+    metric: 'Cardio',
     exercises: [
       { name: 'Treadmill Run', details: '30 min, Moderate intensity', duration: 1800 },
       { name: 'Cycling', details: '20 min, High intensity', duration: 1200 },
@@ -38,9 +40,37 @@ const workoutPlans: WorkoutPlan[] = [
     ],
   },
   {
-    title: 'Flexibility & Mobility',
-    goal: 'Increase range of motion and reduce injury risk',
+    title: 'HIIT Blitz',
+    goal: 'High-intensity interval training for max calorie burn',
+    daysPerWeek: 3,
+    metric: 'Endurance',
+    exercises: [
+      { name: 'High Knees', details: '45s on, 15s rest', duration: 60 },
+      { name: 'Mountain Climbers', details: '45s on, 15s rest', duration: 60 },
+      { name: 'Jump Squats', details: '45s on, 15s rest', duration: 60 },
+      { name: 'Plank Jacks', details: '45s on, 15s rest', duration: 60 },
+      { name: 'Rest', details: '2 minutes', duration: 120 },
+      { name: 'Repeat Circuit', details: '3 more times', duration: 0 },
+    ],
+  },
+  {
+    title: 'Core Crusher',
+    goal: 'Develop strong and stable core muscles',
+    daysPerWeek: 4,
+    metric: 'Strength',
+    exercises: [
+      { name: 'Crunches', details: '3 sets of 20 reps', duration: 120 },
+      { name: 'Leg Raises', details: '3 sets of 15 reps', duration: 120 },
+      { name: 'Russian Twists', details: '3 sets of 15 reps (each side)', duration: 120 },
+      { name: 'Plank', details: '3 sets, hold for 60s', duration: 180 },
+      { name: 'Side Plank', details: '3 sets, hold 30s each side', duration: 180 },
+    ],
+  },
+  {
+    title: 'Mindful Movement',
+    goal: 'Increase flexibility and mind-body connection',
     daysPerWeek: 5,
+    metric: 'Flexibility',
     exercises: [
       { name: 'Dynamic Stretching', details: '10 minutes', duration: 600 },
       { name: 'Yoga Flow', details: '30 minutes', duration: 1800 },
@@ -48,7 +78,29 @@ const workoutPlans: WorkoutPlan[] = [
       { name: 'Deep Stretches (Hamstrings, Hips)', details: '10 minutes', duration: 600 },
     ],
   },
+   {
+    title: 'Active Recovery',
+    goal: 'Promote muscle recovery and reduce soreness',
+    daysPerWeek: 2,
+    metric: 'Balance',
+    exercises: [
+      { name: 'Light Walk', details: '20 minutes', duration: 1200 },
+      { name: 'Full Body Stretching', details: '15 minutes', duration: 900 },
+      { name: 'Foam Roll', details: '10 minutes, focus on sore areas', duration: 600 },
+    ],
+  },
 ];
+
+const getIcon = (metric?: string) => {
+    switch(metric) {
+        case 'Strength': return <Dumbbell className="text-primary" />;
+        case 'Cardio': return <HeartPulse className="text-primary" />;
+        case 'Endurance': return <Zap className="text-primary" />;
+        case 'Flexibility': return <Wind className="text-primary" />;
+        case 'Balance': return <Dumbbell className="text-primary" />;
+        default: return <Dumbbell className="text-primary" />;
+    }
+}
 
 export default function WorkoutsPage() {
   const [activeWorkout, setActiveWorkout] = React.useState<WorkoutPlan | null>(null);
@@ -66,7 +118,7 @@ export default function WorkoutsPage() {
           <Card key={index} className="flex flex-col">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-headline">
-                    <Dumbbell className="text-primary" /> {plan.title}
+                    {getIcon(plan.metric)} {plan.title}
                 </CardTitle>
                  <CardDescription className="pt-2">
                     <span className="flex items-center gap-1.5"><Target className="size-4 text-muted-foreground" /> {plan.goal}</span>

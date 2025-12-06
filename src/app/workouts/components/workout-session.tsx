@@ -22,6 +22,7 @@ export interface WorkoutPlan {
   goal: string;
   daysPerWeek: number;
   exercises: Exercise[];
+  metric?: string;
 }
 
 interface WorkoutSessionProps {
@@ -99,7 +100,7 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
       const batch = writeBatch(firestore);
       batch.set(newWorkoutRef, workoutPayload);
       
-      const updates: Partial<UserProfile> = {};
+      const updates: Partial<UserProfile> & { [key: string]: any } = {};
       updates.totalWorkouts = increment(1);
       updates.caloriesBurned = increment(workoutPayload.caloriesBurned);
       
@@ -123,7 +124,16 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
       }
       updates.workoutHistory = newWorkoutHistory;
       
-      batch.update(userRef, updates as { [key: string]: any });
+      if (plan.metric) {
+        const newProgressOverview = [...(profile.progressOverview || [])];
+        const metricIndex = newProgressOverview.findIndex(p => p.metric === plan.metric);
+        if (metricIndex > -1) {
+          newProgressOverview[metricIndex].value = (newProgressOverview[metricIndex].value || 0) + 5; // Add 5 points per plan
+        }
+        updates.progressOverview = newProgressOverview;
+      }
+      
+      batch.update(userRef, updates);
       await batch.commit();
       
       toast({
@@ -131,11 +141,11 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
         description: 'Great job! Your dashboard has been updated.',
       });
       onClose();
-    } catch(e) {
+    } catch(e: any) {
       toast({
         variant: "destructive",
         title: "Error finishing workout",
-        description: "Could not save your workout. Please try again.",
+        description: e.message || "Could not save your workout. Please try again.",
       });
       console.error(e);
     }
