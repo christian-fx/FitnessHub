@@ -45,8 +45,9 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isFreezing, setIsFreezing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-  React.useEffect(() => {
+  const resetFormState = React.useCallback(() => {
     if (user && profile) {
       setDisplayName(profile.displayName || '');
       setEmail(profile.email || '');
@@ -56,6 +57,10 @@ export default function ProfilePage() {
       setGender(profile.gender || 'not-specified');
     }
   }, [user, profile]);
+
+  React.useEffect(() => {
+    resetFormState();
+  }, [resetFormState]);
 
   const handleSaveChanges = async () => {
     if (!user) return;
@@ -68,15 +73,17 @@ export default function ProfilePage() {
         await updateAuthProfile(user, { displayName });
         updatedProfileData.displayName = displayName;
       }
-      if (email !== profile?.email) {
+      if (email !== profile?.email && user.email) {
+        // Re-authentication might be needed for sensitive operations like changing email
         await updateEmail(user, email);
         updatedProfileData.email = email;
       }
 
-      updatedProfileData.weight = Number(weight);
-      updatedProfileData.height = Number(height);
-      updatedProfileData.age = Number(age);
-      updatedProfileData.gender = gender as UserProfile['gender'];
+      if (Number(weight) !== profile?.weight) updatedProfileData.weight = Number(weight);
+      if (Number(height) !== profile?.height) updatedProfileData.height = Number(height);
+      if (Number(age) !== profile?.age) updatedProfileData.age = Number(age);
+      if (gender !== profile?.gender) updatedProfileData.gender = gender as UserProfile['gender'];
+
 
       if (Object.keys(updatedProfileData).length > 0) {
         await updateDoc(userDocRef, updatedProfileData);
@@ -86,6 +93,7 @@ export default function ProfilePage() {
         title: 'Profile Updated',
         description: 'Your changes have been saved successfully.',
       });
+      setIsEditing(false);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -96,6 +104,11 @@ export default function ProfilePage() {
       setIsSaving(false);
     }
   };
+
+  const handleCancelEdit = () => {
+    resetFormState();
+    setIsEditing(false);
+  }
 
   const handleResetData = async () => {
     if (!user) return;
@@ -226,7 +239,8 @@ export default function ProfilePage() {
               <Input 
                 id="name" 
                 value={displayName} 
-                onChange={(e) => setDisplayName(e.target.value)} 
+                onChange={(e) => setDisplayName(e.target.value)}
+                readOnly={!isEditing} 
                 />
             </div>
             <div className="space-y-2">
@@ -235,7 +249,8 @@ export default function ProfilePage() {
                 id="email" 
                 type="email" 
                 value={email}
-                onChange={(e) => setEmail(e.target.value)} 
+                onChange={(e) => setEmail(e.target.value)}
+                readOnly={!isEditing} 
                 />
             </div>
           </div>
@@ -243,19 +258,19 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
              <div className="space-y-2">
               <Label htmlFor="weight">Weight (kg)</Label>
-              <Input id="weight" type="number" value={weight} onChange={(e) => setWeight(Number(e.target.value))} />
+              <Input id="weight" type="number" value={weight} onChange={(e) => setWeight(Number(e.target.value))} readOnly={!isEditing} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="height">Height (cm)</Label>
-              <Input id="height" type="number" value={height} onChange={(e) => setHeight(Number(e.target.value))} />
+              <Input id="height" type="number" value={height} onChange={(e) => setHeight(Number(e.target.value))} readOnly={!isEditing} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="age">Age</Label>
-              <Input id="age" type="number" value={age} onChange={(e) => setAge(Number(e.target.value))} />
+              <Input id="age" type="number" value={age} onChange={(e) => setAge(Number(e.target.value))} readOnly={!isEditing} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="gender">Gender</Label>
-               <Select value={gender || 'not-specified'} onValueChange={(value) => setGender(value as 'male' | 'female' | 'not-specified')}>
+               <Select value={gender || 'not-specified'} onValueChange={(value) => setGender(value as 'male' | 'female' | 'not-specified')} disabled={!isEditing}>
                 <SelectTrigger id="gender">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
@@ -269,10 +284,19 @@ export default function ProfilePage() {
           </div>
         </CardContent>
         <CardFooter className="border-t pt-6 flex justify-between">
-          <Button onClick={handleSaveChanges} disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
-          </Button>
+          <div className='flex gap-2'>
+            {isEditing ? (
+              <>
+                <Button onClick={handleSaveChanges} disabled={isSaving}>
+                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+                 <Button variant="ghost" onClick={handleCancelEdit}>Cancel</Button>
+              </>
+            ) : (
+              <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+            )}
+          </div>
           <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
         </CardFooter>
       </Card>
