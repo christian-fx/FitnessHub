@@ -9,8 +9,9 @@ import { useUser, useFirestore } from '@/firebase';
 import { doc, writeBatch, increment, Timestamp, serverTimestamp, collection } from 'firebase/firestore';
 import type { UserProfile } from '@/firebase/auth/use-user';
 import { format, differenceInCalendarDays } from 'date-fns';
-import { X, Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import { X, Play, Pause, SkipForward, RotateCcw, HelpCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 
 
 export interface Exercise {
@@ -18,6 +19,7 @@ export interface Exercise {
   details: string;
   duration: number; // Duration in seconds
   muscles: string[];
+  instructions: string;
 }
 
 export interface WorkoutPlan {
@@ -193,7 +195,31 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
                 </div>
             ) : (
                 <>
-                    <h2 className="text-2xl font-semibold mt-8">{currentExercise.name}</h2>
+                    <div className='flex justify-center items-center gap-2 mt-8'>
+                        <h2 className="text-2xl font-semibold">{currentExercise.name}</h2>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6">
+                                    <HelpCircle className="text-muted-foreground" />
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>{currentExercise.name}</DialogTitle>
+                                    <DialogDescription>
+                                        <div className="mt-4 text-left prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                                            {currentExercise.instructions}
+                                        </div>
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="secondary" className='mt-4'>
+                                    Close
+                                    </Button>
+                                </DialogClose>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                     <p className="text-muted-foreground mb-1">{currentExercise.details}</p>
                     <p className="text-xs text-muted-foreground mb-8">Muscles: {currentExercise.muscles.join(', ')}</p>
 
