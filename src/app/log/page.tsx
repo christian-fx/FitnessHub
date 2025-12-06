@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Loader2, Dumbbell, Calendar as CalendarIcon } from 'lucide-react';
+import { Loader2, Dumbbell, Calendar as CalendarIcon, Flame } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, collection, serverTimestamp, writeBatch, increment, getDoc, Timestamp } from 'firebase/firestore';
@@ -38,6 +38,8 @@ import { format, subDays, differenceInCalendarDays } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -45,7 +47,6 @@ const formSchema = z.object({
     .number()
     .min(1, 'Duration must be at least 1 minute.')
     .positive(),
-  caloriesBurned: z.coerce.number().min(0).optional(),
   volumeLifted: z.coerce.number().min(0).optional(),
   date: z.date({
     required_error: "A date is required.",
@@ -55,9 +56,18 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const MET_VALUES = {
+    'Strength Training': 5.0,
+    'Cardio': 8.0,
+    'Yoga': 2.5,
+    'HIIT': 11.0,
+    'Stretching': 2.0,
+    'Other': 4.0,
+}
 
 export default function LogWorkoutPage() {
   const [isPending, startTransition] = useTransition();
+  const [caloriesBurned, setCaloriesBurned] = useState<number | null>(null);
   const { toast } = useToast();
   const { user, profile } = useUser();
   const firestore = useFirestore();
@@ -65,7 +75,6 @@ export default function LogWorkoutPage() {
   const defaultValues: FormData = useMemo(() => ({
     workoutType: 'Strength Training',
     duration: 60,
-    caloriesBurned: 300,
     volumeLifted: 1000,
     date: new Date(),
     notes: '',
@@ -93,9 +102,16 @@ export default function LogWorkoutPage() {
 
         const workoutDate = values.date;
         const workoutDateStr = format(workoutDate, 'yyyy-MM-dd');
+        
+        const metValue = MET_VALUES[values.workoutType as keyof typeof MET_VALUES] || 4.0;
+        const userWeight = profile.weight || 70; // Default to 70kg if not set
+        const calculatedCalories = Math.round((values.duration * metValue * 3.5 * userWeight) / 200);
+        setCaloriesBurned(calculatedCalories);
+
 
         const workoutPayload = {
           ...values,
+          caloriesBurned: calculatedCalories,
           date: Timestamp.fromDate(workoutDate),
           createdAt: serverTimestamp(),
         };
@@ -107,10 +123,8 @@ export default function LogWorkoutPage() {
         const updates: Partial<UserProfile> = {};
         
         updates.totalWorkouts = increment(1);
+        updates.caloriesBurned = increment(calculatedCalories);
         
-        if (values.caloriesBurned) {
-          updates.caloriesBurned = increment(values.caloriesBurned);
-        }
         if (values.volumeLifted) {
           updates.volumeLifted = increment(values.volumeLifted);
         }
@@ -166,15 +180,11 @@ export default function LogWorkoutPage() {
         batch.update(userRef, updates as { [key: string]: any });
         
         await batch.commit();
-        
-        toast({
-          title: 'Workout Logged!',
-          description: 'Your dashboard has been updated with your new workout.',
-        });
         form.reset(defaultValues);
 
       } catch (error: any) {
         console.error("Error logging workout:", error);
+        setCaloriesBurned(null);
         toast({
           variant: 'destructive',
           title: 'Error Logging Workout',
@@ -186,6 +196,7 @@ export default function LogWorkoutPage() {
   };
 
   return (
+    <>
     <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
@@ -195,7 +206,7 @@ export default function LogWorkoutPage() {
           </CardTitle>
           <CardDescription>
             Fill in the details of your workout session to keep track of your
-            progress.
+            progress. Calories will be estimated based on your weight.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -246,42 +257,7 @@ export default function LogWorkoutPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="caloriesBurned"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Calories Burned</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="e.g. 300"
-                          {...field}
-                          value={field.value ?? ''}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="volumeLifted"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Volume Lifted (kg)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="For strength training"
-                          {...field}
-                          value={field.value ?? ''}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                  <FormField
                   control={form.control}
                   name="date"
@@ -323,6 +299,25 @@ export default function LogWorkoutPage() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="volumeLifted"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Volume Lifted (kg)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="For strength training"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <FormField
                 control={form.control}
@@ -353,5 +348,29 @@ export default function LogWorkoutPage() {
         </CardContent>
       </Card>
     </div>
+
+    <AlertDialog open={caloriesBurned !== null} onOpenChange={() => setCaloriesBurned(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader className="items-center text-center">
+            <div className="rounded-full bg-primary/10 p-4 w-fit">
+                <Flame className="h-12 w-12 text-primary" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-headline">Workout Logged!</AlertDialogTitle>
+            <AlertDialogDescription>
+                Great job on completing your workout. Your dashboard has been updated.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="rounded-lg bg-muted p-4 text-center">
+                <p className="text-sm text-muted-foreground">Estimated Calories Burned</p>
+                <p className="text-4xl font-bold text-primary">{caloriesBurned}</p>
+            </div>
+            <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setCaloriesBurned(null)}>
+                Awesome!
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
