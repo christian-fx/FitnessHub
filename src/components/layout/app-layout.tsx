@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, LineChart, Dumbbell, Trophy } from 'lucide-react';
+import { Home, LineChart, Dumbbell, Trophy, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/icons';
@@ -21,6 +21,7 @@ const navItems = [
   { href: '/dashboard', icon: LineChart, label: 'Dashboard' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/challenges', icon: Trophy, label: 'Challenges' },
+  { href: '/profile', icon: User, label: 'Profile' },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
