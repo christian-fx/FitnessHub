@@ -99,9 +99,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             asChild
                             isActive={pathname.startsWith(item.href)}
                             tooltip={item.label}
-                            icon={<item.icon />}
                         >
                             <Link href={item.href}>
+                                <item.icon />
                                 <span>{item.label}</span>
                             </Link>
                         </SidebarMenuButton>
@@ -113,10 +113,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
-                            icon={<Home />}
                             isActive={pathname === '/'}
                         >
                             <Link href="/">
+                                <Home />
                                 <span>Home</span>
                             </Link>
                         </SidebarMenuButton>
@@ -124,10 +124,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
-                            icon={<Wand2 />}
                             isActive={pathname === '/ai'}
                         >
                             <Link href="/ai">
+                                <Wand2 />
                                 <span>AI Planner</span>
                             </Link>
                         </SidebarMenuButton>
