@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Wand2, ArrowRight, Copy } from 'lucide-react';
+import { Loader2, Wand2, ArrowRight, Copy, RefreshCw, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
@@ -68,6 +68,15 @@ export function AIWorkoutForm() {
             description: "Your workout plan has been copied.",
         });
     }
+  }
+
+  const handleNewPlan = () => {
+    setWorkoutPlan(null);
+    form.reset();
+  }
+
+  const handleRegenerate = () => {
+    form.handleSubmit(onSubmit)();
   }
 
   return (
@@ -140,10 +149,17 @@ export function AIWorkoutForm() {
               )}
             />
           </div>
-          <Button type="submit" disabled={isPending || workoutPlan !== null} size="lg">
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-            Generate Plan
-          </Button>
+          {workoutPlan ? (
+             <Button type="button" onClick={handleNewPlan} size="lg" variant="outline">
+                <Sparkles className="mr-2 h-4 w-4" />
+                New Plan
+            </Button>
+          ) : (
+            <Button type="submit" disabled={isPending} size="lg">
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                Generate Plan
+            </Button>
+          )}
         </form>
       </Form>
 
@@ -167,9 +183,14 @@ export function AIWorkoutForm() {
                     Your Personalized Workout Plan
                 </CardTitle>
             </div>
-            <Button variant="outline" size="icon" onClick={handleCopy}>
-                <Copy className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={handleRegenerate} disabled={isPending}>
+                    <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={handleCopy}>
+                    <Copy className="h-4 w-4" />
+                </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-muted/50 rounded-lg">
