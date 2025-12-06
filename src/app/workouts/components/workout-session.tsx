@@ -10,11 +10,14 @@ import { doc, writeBatch, increment, Timestamp, serverTimestamp, collection } fr
 import type { UserProfile } from '@/firebase/auth/use-user';
 import { format, differenceInCalendarDays } from 'date-fns';
 import { X, Play, Pause, SkipForward, RotateCcw } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 export interface Exercise {
   name: string;
   details: string;
   duration: number; // Duration in seconds
+  muscles: string[];
 }
 
 export interface WorkoutPlan {
@@ -23,6 +26,7 @@ export interface WorkoutPlan {
   daysPerWeek: number;
   exercises: Exercise[];
   metric?: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
 }
 
 interface WorkoutSessionProps {
@@ -35,6 +39,7 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
   const [timer, setTimer] = React.useState(plan.exercises[0].duration);
   const [isActive, setIsActive] = React.useState(false);
   const [isCompleted, setIsCompleted] = React.useState(false);
+  const [isClosing, setIsClosing] = React.useState(false);
 
   const { user, profile } = useUser();
   const firestore = useFirestore();
@@ -157,10 +162,19 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
+  const handleClose = () => {
+    if (!isCompleted) {
+        setIsClosing(true);
+    } else {
+        onClose();
+    }
+  };
+
   return (
+    <>
     <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in-50">
       <Card className="w-full max-w-2xl mx-4 relative">
-        <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={onClose}>
+        <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={handleClose}>
           <X />
         </Button>
         <CardHeader>
@@ -180,7 +194,8 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
             ) : (
                 <>
                     <h2 className="text-2xl font-semibold">{currentExercise.name}</h2>
-                    <p className="text-muted-foreground mb-8">{currentExercise.details}</p>
+                    <p className="text-muted-foreground mb-1">{currentExercise.details}</p>
+                    <p className="text-xs text-muted-foreground mb-8">Muscles: {currentExercise.muscles.join(', ')}</p>
 
                     <div className="text-8xl font-bold font-mono text-primary my-8">
                         {formatTime(timer)}
@@ -218,5 +233,22 @@ export function WorkoutSession({ plan, onClose }: WorkoutSessionProps) {
         </CardContent>
       </Card>
     </div>
+    <AlertDialog open={isClosing} onOpenChange={setIsClosing}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to quit?</AlertDialogTitle>
+            <AlertDialogDescription>
+                If you quit now, your workout progress for this session will not be saved.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Quit Workout
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

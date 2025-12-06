@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 
 // Define a type for the user profile data
@@ -23,13 +23,9 @@ export interface UserProfile {
     progressOverview?: { metric: string; value: number }[];
 }
 
-const createNewUserProfile = async (firestore: any, user: User) => {
+export const createNewUserProfile = async (firestore: any, user: User, isReset = false) => {
     const userRef = doc(firestore, 'users', user.uid);
-    const newUserProfile: UserProfile = {
-      uid: user.uid,
-      displayName: user.displayName,
-      email: user.email,
-      photoURL: user.photoURL,
+    const newUserProfile: Omit<UserProfile, 'uid' | 'displayName' | 'email' | 'photoURL'> = {
       totalWorkouts: 0,
       recentWorkoutChange: 0,
       caloriesBurned: 0,
@@ -54,8 +50,22 @@ const createNewUserProfile = async (firestore: any, user: User) => {
         { metric: 'Balance', value: 0 },
       ],
     };
-    await setDoc(userRef, newUserProfile);
-    return newUserProfile;
+
+    if (isReset) {
+      await updateDoc(userRef, newUserProfile);
+      return { ...user, ...newUserProfile} as UserProfile;
+    }
+
+    const fullProfile: UserProfile = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      ...newUserProfile,
+    };
+
+    await setDoc(userRef, fullProfile);
+    return fullProfile;
 };
 
 

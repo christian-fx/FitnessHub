@@ -10,8 +10,9 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, Target, Repeat, PlayCircle, Zap, HeartPulse, Wind } from 'lucide-react';
+import { Dumbbell, Target, Repeat, PlayCircle, Zap, HeartPulse, Wind, ShieldCheck, BarChart } from 'lucide-react';
 import { WorkoutSession, type WorkoutPlan } from './components/workout-session';
+import { Badge } from '@/components/ui/badge';
 
 const workoutPlans: WorkoutPlan[] = [
   {
@@ -19,12 +20,13 @@ const workoutPlans: WorkoutPlan[] = [
     goal: 'Build overall muscle and strength',
     daysPerWeek: 3,
     metric: 'Strength',
+    difficulty: 'Intermediate',
     exercises: [
-      { name: 'Squats', details: '3 sets of 8-12 reps', duration: 180 },
-      { name: 'Bench Press', details: '3 sets of 8-12 reps', duration: 180 },
-      { name: 'Deadlifts', details: '3 sets of 5-8 reps', duration: 240 },
-      { name: 'Overhead Press', details: '3 sets of 8-12 reps', duration: 180 },
-      { name: 'Pull-ups', details: '3 sets to failure', duration: 150 },
+      { name: 'Squats', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Quads', 'Glutes'] },
+      { name: 'Bench Press', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Chest', 'Triceps'] },
+      { name: 'Deadlifts', details: '3 sets of 5-8 reps', duration: 240, muscles: ['Back', 'Hamstrings'] },
+      { name: 'Overhead Press', details: '3 sets of 8-12 reps', duration: 180, muscles: ['Shoulders'] },
+      { name: 'Pull-ups', details: '3 sets to failure', duration: 150, muscles: ['Back', 'Biceps'] },
     ],
   },
   {
@@ -32,11 +34,12 @@ const workoutPlans: WorkoutPlan[] = [
     goal: 'Improve cardiovascular health and endurance',
     daysPerWeek: 4,
     metric: 'Cardio',
+    difficulty: 'Beginner',
     exercises: [
-      { name: 'Treadmill Run', details: '30 min, Moderate intensity', duration: 1800 },
-      { name: 'Cycling', details: '20 min, High intensity', duration: 1200 },
-      { name: 'Jumping Jacks', details: '4 sets of 60 seconds', duration: 240 },
-      { name: 'Burpees', details: '4 sets of 15 reps', duration: 180 },
+      { name: 'Treadmill Run', details: '30 min, Moderate intensity', duration: 1800, muscles: ['Legs', 'Cardio'] },
+      { name: 'Cycling', details: '20 min, High intensity', duration: 1200, muscles: ['Legs', 'Cardio'] },
+      { name: 'Jumping Jacks', details: '4 sets of 60 seconds', duration: 240, muscles: ['Full Body'] },
+      { name: 'Burpees', details: '4 sets of 15 reps', duration: 180, muscles: ['Full Body', 'Cardio'] },
     ],
   },
   {
@@ -44,13 +47,14 @@ const workoutPlans: WorkoutPlan[] = [
     goal: 'High-intensity interval training for max calorie burn',
     daysPerWeek: 3,
     metric: 'Endurance',
+    difficulty: 'Advanced',
     exercises: [
-      { name: 'High Knees', details: '45s on, 15s rest', duration: 60 },
-      { name: 'Mountain Climbers', details: '45s on, 15s rest', duration: 60 },
-      { name: 'Jump Squats', details: '45s on, 15s rest', duration: 60 },
-      { name: 'Plank Jacks', details: '45s on, 15s rest', duration: 60 },
-      { name: 'Rest', details: '2 minutes', duration: 120 },
-      { name: 'Repeat Circuit', details: '3 more times', duration: 0 },
+      { name: 'High Knees', details: '45s on, 15s rest', duration: 60, muscles: ['Legs', 'Cardio'] },
+      { name: 'Mountain Climbers', details: '45s on, 15s rest', duration: 60, muscles: ['Core', 'Cardio'] },
+      { name: 'Jump Squats', details: '45s on, 15s rest', duration: 60, muscles: ['Quads', 'Glutes'] },
+      { name: 'Plank Jacks', details: '45s on, 15s rest', duration: 60, muscles: ['Core', 'Cardio'] },
+      { name: 'Rest', details: '2 minutes', duration: 120, muscles: [] },
+      { name: 'Repeat Circuit', details: '3 more times', duration: 0, muscles: [] },
     ],
   },
   {
@@ -58,12 +62,13 @@ const workoutPlans: WorkoutPlan[] = [
     goal: 'Develop strong and stable core muscles',
     daysPerWeek: 4,
     metric: 'Strength',
+    difficulty: 'Intermediate',
     exercises: [
-      { name: 'Crunches', details: '3 sets of 20 reps', duration: 120 },
-      { name: 'Leg Raises', details: '3 sets of 15 reps', duration: 120 },
-      { name: 'Russian Twists', details: '3 sets of 15 reps (each side)', duration: 120 },
-      { name: 'Plank', details: '3 sets, hold for 60s', duration: 180 },
-      { name: 'Side Plank', details: '3 sets, hold 30s each side', duration: 180 },
+      { name: 'Crunches', details: '3 sets of 20 reps', duration: 120, muscles: ['Abs'] },
+      { name: 'Leg Raises', details: '3 sets of 15 reps', duration: 120, muscles: ['Lower Abs'] },
+      { name: 'Russian Twists', details: '3 sets of 15 reps (each side)', duration: 120, muscles: ['Obliques'] },
+      { name: 'Plank', details: '3 sets, hold for 60s', duration: 180, muscles: ['Core'] },
+      { name: 'Side Plank', details: '3 sets, hold 30s each side', duration: 180, muscles: ['Obliques'] },
     ],
   },
   {
@@ -71,11 +76,12 @@ const workoutPlans: WorkoutPlan[] = [
     goal: 'Increase flexibility and mind-body connection',
     daysPerWeek: 5,
     metric: 'Flexibility',
+    difficulty: 'Beginner',
     exercises: [
-      { name: 'Dynamic Stretching', details: '10 minutes', duration: 600 },
-      { name: 'Yoga Flow', details: '30 minutes', duration: 1800 },
-      { name: 'Foam Rolling', details: '15 minutes', duration: 900 },
-      { name: 'Deep Stretches (Hamstrings, Hips)', details: '10 minutes', duration: 600 },
+      { name: 'Dynamic Stretching', details: '10 minutes', duration: 600, muscles: ['Full Body'] },
+      { name: 'Yoga Flow', details: '30 minutes', duration: 1800, muscles: ['Full Body'] },
+      { name: 'Foam Rolling', details: '15 minutes', duration: 900, muscles: ['Full Body'] },
+      { name: 'Deep Stretches (Hamstrings, Hips)', details: '10 minutes', duration: 600, muscles: ['Legs'] },
     ],
   },
    {
@@ -83,10 +89,11 @@ const workoutPlans: WorkoutPlan[] = [
     goal: 'Promote muscle recovery and reduce soreness',
     daysPerWeek: 2,
     metric: 'Balance',
+    difficulty: 'Beginner',
     exercises: [
-      { name: 'Light Walk', details: '20 minutes', duration: 1200 },
-      { name: 'Full Body Stretching', details: '15 minutes', duration: 900 },
-      { name: 'Foam Roll', details: '10 minutes, focus on sore areas', duration: 600 },
+      { name: 'Light Walk', details: '20 minutes', duration: 1200, muscles: ['Full Body'] },
+      { name: 'Full Body Stretching', details: '15 minutes', duration: 900, muscles: ['Full Body'] },
+      { name: 'Foam Roll', details: '10 minutes, focus on sore areas', duration: 600, muscles: ['Full Body'] },
     ],
   },
 ];
@@ -97,10 +104,24 @@ const getIcon = (metric?: string) => {
         case 'Cardio': return <HeartPulse className="text-primary" />;
         case 'Endurance': return <Zap className="text-primary" />;
         case 'Flexibility': return <Wind className="text-primary" />;
-        case 'Balance': return <Dumbbell className="text-primary" />;
-        default: return <Dumbbell className="text-primary" />;
+        case 'Balance': return <ShieldCheck className="text-primary" />;
+        default: return <BarChart className="text-primary" />;
     }
 }
+
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty) {
+    case 'Beginner':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'Intermediate':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'Advanced':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
 
 export default function WorkoutsPage() {
   const [activeWorkout, setActiveWorkout] = React.useState<WorkoutPlan | null>(null);
@@ -117,9 +138,14 @@ export default function WorkoutsPage() {
         {workoutPlans.map((plan, index) => (
           <Card key={index} className="flex flex-col">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    {getIcon(plan.metric)} {plan.title}
-                </CardTitle>
+                <div className='flex justify-between items-start'>
+                    <CardTitle className="flex items-center gap-2 font-headline">
+                        {getIcon(plan.metric)} {plan.title}
+                    </CardTitle>
+                    <Badge className={cn(getDifficultyColor(plan.difficulty), 'whitespace-nowrap')}>
+                        {plan.difficulty}
+                    </Badge>
+                </div>
                  <CardDescription className="pt-2">
                     <span className="flex items-center gap-1.5"><Target className="size-4 text-muted-foreground" /> {plan.goal}</span>
                     <span className="flex items-center gap-1.5 mt-1"><Repeat className="size-4 text-muted-foreground" /> {plan.daysPerWeek} days/week</span>
@@ -131,7 +157,7 @@ export default function WorkoutsPage() {
                     <li key={exIndex} className="flex items-center justify-between text-sm">
                         <span className="font-medium text-muted-foreground">{ex.name}</span>
                         <span className="text-xs text-muted-foreground/80">
-                        {ex.details}
+                         {ex.muscles.join(', ')}
                         </span>
                     </li>
                     ))}

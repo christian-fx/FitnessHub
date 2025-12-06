@@ -20,9 +20,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { createNewUserProfile } from '@/firebase/auth/use-user';
 
 export default function ProfilePage() {
   const { user, profile, loading: userLoading } = useUser();
@@ -34,6 +36,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   React.useEffect(() => {
     if (user && profile) {
@@ -54,9 +57,6 @@ export default function ProfilePage() {
         updatedProfileData.displayName = displayName;
       }
       if (email !== profile?.email) {
-        // Reauthentication might be needed for security-sensitive operations
-        // For simplicity, we are directly trying to update email.
-        // In a production app, handle re-authentication flow.
         await updateEmail(user, email);
         updatedProfileData.email = email;
       }
@@ -77,6 +77,28 @@ export default function ProfilePage() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleResetData = async () => {
+    if (!user) return;
+    setIsResetting(true);
+    try {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const freshProfile = await createNewUserProfile(firestore, user, true);
+        await updateDoc(userDocRef, freshProfile);
+        toast({
+            title: "Data Reset",
+            description: "Your workout data has been successfully reset.",
+        });
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Error Resetting Data",
+            description: error.message || "An unexpected error occurred.",
+        });
+    } finally {
+        setIsResetting(false);
     }
   };
 
@@ -125,15 +147,14 @@ export default function ProfilePage() {
   }
   
   if (!user) {
-    // Optionally, redirect to login if no user is found after loading
     if (typeof window !== 'undefined') {
         router.push('/login');
     }
-    return null; // Or a message indicating user should be logged in
+    return null;
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-8">
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">My Profile</CardTitle>
@@ -180,6 +201,42 @@ export default function ProfilePage() {
           </Button>
           <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
         </CardFooter>
+      </Card>
+      
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center gap-2 text-destructive">
+            <AlertTriangle />
+            Danger Zone
+          </CardTitle>
+          <CardDescription>
+            These actions are irreversible. Please be certain before proceeding.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={isResetting}>
+                  {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Reset All Workout Data
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all of your workout history, stats, and reset your streak.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleResetData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Yes, reset my data
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+        </CardContent>
       </Card>
     </div>
   );
