@@ -3,13 +3,13 @@
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
-const chartData = [
-  { month: 'Jan', workouts: 18 },
-  { month: 'Feb', workouts: 22 },
-  { month: 'Mar', workouts: 25 },
-  { month: 'Apr', workouts: 20 },
-  { month: 'May', workouts: 28 },
-  { month: 'Jun', workouts: 26 },
+const defaultChartData = [
+  { month: 'Jan', workouts: 0 },
+  { month: 'Feb', workouts: 0 },
+  { month: 'Mar', workouts: 0 },
+  { month: 'Apr', workouts: 0 },
+  { month: 'May', workouts: 0 },
+  { month: 'Jun', workouts: 0 },
 ];
 
 const chartConfig = {
@@ -19,7 +19,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function WorkoutHistoryChart() {
+type WorkoutHistoryChartProps = {
+    data?: { month: string; workouts: number }[];
+}
+
+export function WorkoutHistoryChart({ data }: WorkoutHistoryChartProps) {
+  const chartData = data && data.length > 0 ? data : defaultChartData;
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
       <BarChart accessibilityLayer data={chartData}>

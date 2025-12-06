@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { useAuth, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ import Link from 'next/link';
 export default function SignupPage() {
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,8 +40,40 @@ export default function SignupPage() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, {
-        displayName: `${firstName} ${lastName}`.trim(),
+      const user = userCredential.user;
+      const displayName = `${firstName} ${lastName}`.trim();
+
+      await updateProfile(user, {
+        displayName: displayName,
+      });
+
+      await setDoc(doc(firestore, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: displayName,
+        photoURL: user.photoURL,
+        totalWorkouts: 128,
+        recentWorkoutChange: 12,
+        caloriesBurned: 32450,
+        recentCaloriesChange: 2103,
+        volumeLifted: 150230,
+        recentVolumeChange: 15,
+        activeStreak: 24,
+        workoutHistory: [
+            { month: 'Jan', workouts: 18 },
+            { month: 'Feb', workouts: 22 },
+            { month: 'Mar', workouts: 25 },
+            { month: 'Apr', workouts: 20 },
+            { month: 'May', workouts: 28 },
+            { month: 'Jun', workouts: 26 },
+        ],
+        progressOverview: [
+            { metric: 'Strength', value: 80 },
+            { metric: 'Cardio', value: 90 },
+            { metric: 'Flexibility', value: 65 },
+            { metric: 'Endurance', value: 75 },
+            { metric: 'Balance', value: 85 },
+        ]
       });
       
       router.push('/dashboard');

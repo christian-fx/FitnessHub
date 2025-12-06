@@ -3,7 +3,9 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useUser, useAuth } from '@/firebase';
-import { signOut, updateProfile, updateEmail } from 'firebase/auth';
+import { signOut, updateProfile as updateAuthProfile, updateEmail } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import {
   Card,
@@ -23,8 +25,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ProfilePage() {
-  const { user, loading: userLoading } = useUser();
+  const { user, profile, loading: userLoading } = useUser();
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -33,25 +36,35 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
 
   React.useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName || '');
-      setEmail(user.email || '');
+    if (user && profile) {
+      setDisplayName(profile.displayName || '');
+      setEmail(profile.email || '');
     }
-  }, [user]);
+  }, [user, profile]);
 
   const handleSaveChanges = async () => {
     if (!user) return;
     setIsSaving(true);
     try {
-      if (displayName !== user.displayName) {
-        await updateProfile(user, { displayName });
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const updatedProfileData: { displayName?: string; email?: string } = {};
+
+      if (displayName !== profile?.displayName) {
+        await updateAuthProfile(user, { displayName });
+        updatedProfileData.displayName = displayName;
       }
-      if (email !== user.email) {
+      if (email !== profile?.email) {
         // Reauthentication might be needed for security-sensitive operations
         // For simplicity, we are directly trying to update email.
         // In a production app, handle re-authentication flow.
         await updateEmail(user, email);
+        updatedProfileData.email = email;
       }
+
+      if (Object.keys(updatedProfileData).length > 0) {
+        await updateDoc(userDocRef, updatedProfileData);
+      }
+
       toast({
         title: 'Profile Updated',
         description: 'Your changes have been saved successfully.',
@@ -135,8 +148,8 @@ export default function ProfilePage() {
               <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
             </Avatar>
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold">{user.displayName || 'User'}</h2>
-              <p className="text-muted-foreground">{user.email}</p>
+              <h2 className="text-2xl font-bold">{profile?.displayName || 'User'}</h2>
+              <p className="text-muted-foreground">{profile?.email}</p>
             </div>
           </div>
           <Separator />
