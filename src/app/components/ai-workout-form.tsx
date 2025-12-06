@@ -154,17 +154,11 @@ export function AIWorkoutForm() {
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-muted/50 rounded-lg">
-              <ReactMarkdown 
-                className="prose prose-sm dark:prose-invert max-w-none"
-                components={{
-                    h3: ({node, ...props}) => <h3 className="text-lg font-semibold font-headline text-foreground" {...props} />,
-                    ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-2" {...props} />,
-                    li: ({node, ...props}) => <li className="text-foreground" {...props} />,
-                    strong: ({node, ...props}) => <strong className="font-bold text-primary" {...props} />,
-                }}
-              >
-                  {workoutPlan}
-              </ReactMarkdown>
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>
+                        {workoutPlan}
+                    </ReactMarkdown>
+                </div>
             </div>
           </CardContent>
         </Card>
