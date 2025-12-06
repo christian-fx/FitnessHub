@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { createNewUserProfile } from '@/firebase/auth/use-user';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
@@ -91,18 +92,11 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // Check if user document already exists
       const userDocRef = doc(firestore, 'users', user.uid);
       const docSnap = await getDoc(userDocRef);
 
       if (!docSnap.exists()) {
-        // New user, create a document to trigger the useUser hook's creation logic
-        await setDoc(userDocRef, {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-        }, { merge: true });
+        await createNewUserProfile(firestore, user);
       }
 
       router.push('/dashboard');

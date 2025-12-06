@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc, getFirestore } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 
 // Define a type for the user profile data
@@ -29,9 +30,9 @@ export interface UserProfile {
     dailyTaskLastCompleted?: string; // YYYY-MM-DD
 }
 
-export const createNewUserProfile = async (firestore: any, user: User, isReset = false) => {
+export const createNewUserProfile = async (firestore: any, user: User, isReset = false): Promise<UserProfile> => {
     const userRef = doc(firestore, 'users', user.uid);
-    const newUserProfile: Omit<UserProfile, 'uid' | 'displayName' | 'email' | 'photoURL'> = {
+    const newUserProfileData: Omit<UserProfile, 'uid' | 'displayName' | 'email' | 'photoURL'> = {
       weight: 0,
       height: 0,
       age: 0,
@@ -64,8 +65,14 @@ export const createNewUserProfile = async (firestore: any, user: User, isReset =
     };
 
     if (isReset) {
-      await updateDoc(userRef, newUserProfile);
-      return { ...user, ...newUserProfile} as UserProfile;
+      await updateDoc(userRef, newUserProfileData);
+      return { 
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        ...newUserProfileData
+      };
     }
 
     const fullProfile: UserProfile = {
@@ -73,7 +80,7 @@ export const createNewUserProfile = async (firestore: any, user: User, isReset =
       displayName: user.displayName,
       email: user.email,
       photoURL: user.photoURL,
-      ...newUserProfile,
+      ...newUserProfileData,
     };
 
     await setDoc(userRef, fullProfile);

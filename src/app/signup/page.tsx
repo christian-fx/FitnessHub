@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { Checkbox } from '@/components/ui/checkbox';
+import { createNewUserProfile } from '@/firebase/auth/use-user';
 
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -92,17 +93,7 @@ export default function SignupPage() {
         displayName: displayName,
       });
 
-      // This data will now be created by the useUser hook automatically
-      // We just need to create the doc to trigger the hook.
-      await setDoc(doc(firestore, "users", user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName: displayName,
-        photoURL: user.photoURL,
-      }, { merge: true });
-      
-      // We are not sending email verification anymore
-      // await sendEmailVerification(user);
+      await createNewUserProfile(firestore, user);
       
       router.push('/dashboard');
       toast({
@@ -133,12 +124,7 @@ export default function SignupPage() {
       const docSnap = await getDoc(userDocRef);
 
       if (!docSnap.exists()) {
-        await setDoc(userDocRef, {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-        }, { merge: true });
+        await createNewUserProfile(firestore, user);
       }
 
       router.push('/dashboard');
