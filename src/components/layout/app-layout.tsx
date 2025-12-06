@@ -102,7 +102,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             tooltip={item.label}
                         >
                             <Link href={item.href}>
-                                {item.label}
+                                <span>{item.label}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -116,7 +116,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             icon={<Home />}
                             isActive={pathname === '/'}
                         >
-                            <Link href="/">Home</Link>
+                            <Link href="/">
+                                <span>Home</span>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
@@ -125,7 +127,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             icon={<Wand2 />}
                             isActive={pathname === '/ai'}
                         >
-                            <Link href="/ai">AI Planner</Link>
+                            <Link href="/ai">
+                                <span>AI Planner</span>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

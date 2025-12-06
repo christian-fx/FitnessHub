@@ -492,7 +492,7 @@ const SidebarMenu = React.forwardRef<
   <ul
     ref={ref}
     data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    className={cn("flex w-full min-w-0 flex-col gap-1 p-2", className)}
     {...props}
   />
 ))
@@ -539,6 +539,7 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
+    icon?: React.ReactNode;
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -548,6 +549,8 @@ const SidebarMenuButton = React.forwardRef<
       variant = "default",
       size = "default",
       tooltip,
+      icon,
+      children,
       className,
       onClick,
       ...props
@@ -567,16 +570,19 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     const button = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        onClick={handleClick}
-        {...props}
-      />
-    )
+        <Comp
+            ref={ref}
+            data-sidebar="menu-button"
+            data-size={size}
+            data-active={isActive}
+            className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+            onClick={handleClick}
+            {...props}
+        >
+            {icon}
+            {children}
+        </Comp>
+    );
 
     if (!tooltip) {
       return button
