@@ -32,7 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Dumbbell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
-import { runTransaction, doc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, serverTimestamp, writeBatch, increment } from 'firebase/firestore';
 
 const formSchema = z.object({
   workoutType: z.string().min(1, 'Please select a workout type.'),
@@ -79,25 +79,20 @@ export default function LogWorkoutPage() {
       try {
         const userRef = doc(firestore, 'users', user.uid);
         const workoutsCollectionRef = collection(userRef, 'workouts');
+        const newWorkoutRef = doc(workoutsCollectionRef);
+
         const workoutPayload = {
           ...values,
           date: new Date(values.date),
           createdAt: serverTimestamp(),
         };
 
-        await runTransaction(firestore, async (transaction) => {
-          const userDoc = await transaction.get(userRef);
-          if (!userDoc.exists()) {
-            throw 'Document does not exist!';
-          }
-          
-          const currentWorkouts = userDoc.data()?.totalWorkouts || 0;
+        const batch = writeBatch(firestore);
 
-          const newWorkoutRef = doc(workoutsCollectionRef);
-          transaction.set(newWorkoutRef, workoutPayload);
-
-          transaction.update(userRef, { totalWorkouts: currentWorkouts + 1 });
-        });
+        batch.set(newWorkoutRef, workoutPayload);
+        batch.update(userRef, { totalWorkouts: increment(1) });
+        
+        await batch.commit();
         
         toast({
           title: 'Workout Logged!',
@@ -109,11 +104,12 @@ export default function LogWorkoutPage() {
         });
 
       } catch (error: any) {
+        console.error("Error logging workout:", error);
         toast({
           variant: 'destructive',
-          title: 'Error',
+          title: 'Error Logging Workout',
           description:
-            error.message || 'An unexpected error occurred while logging workout.',
+            error.message || 'An unexpected error occurred. Please try again.',
         });
       }
     });
