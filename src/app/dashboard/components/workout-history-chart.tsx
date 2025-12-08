@@ -27,8 +27,12 @@ type WorkoutHistoryChartProps = {
 }
 
 export function WorkoutHistoryChart({ data }: WorkoutHistoryChartProps) {
-  const defaultChartData = useMemo(() => generateDefaultChartData(), []);
-  const chartData = data && data.length > 0 ? data : defaultChartData;
+  const chartData = useMemo(() => {
+    if (data && data.length > 0) {
+      return data;
+    }
+    return generateDefaultChartData();
+  }, [data]);
 
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
