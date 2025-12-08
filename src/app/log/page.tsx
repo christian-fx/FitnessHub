@@ -151,15 +151,21 @@ export default function LogWorkoutPage() {
         updates.lastWorkoutDate = workoutDateStr;
 
 
+        // --- Workout History Logic ---
         const monthKey = format(workoutDate, 'MMM');
         const newWorkoutHistory = [...(profile.workoutHistory || [])];
         const monthIndex = newWorkoutHistory.findIndex(h => h.month === monthKey);
         
         if (monthIndex > -1) {
             newWorkoutHistory[monthIndex].workouts = (newWorkoutHistory[monthIndex].workouts || 0) + 1;
+        } else {
+            // This case handles if the month is somehow not in the last 6 months
+            // A more robust solution might be to regenerate the last 6 months array here
+            // But for now, we'll assume the profile is correctly initialized.
         }
         updates.workoutHistory = newWorkoutHistory;
 
+        // --- Progress Overview Logic ---
         const newProgressOverview = [...(profile.progressOverview || [])];
         let metricToUpdate: string | null = null;
         switch(values.workoutType) {

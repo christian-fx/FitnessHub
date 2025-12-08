@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, updateDoc, getFirestore } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
+import { format, subMonths } from 'date-fns';
 
 // Define a type for the user profile data
 export interface UserProfile {
@@ -30,8 +31,19 @@ export interface UserProfile {
     dailyTaskLastCompleted?: string; // YYYY-MM-DD
 }
 
+const generateLastSixMonths = () => {
+    const months = [];
+    const today = new Date();
+    for (let i = 5; i >= 0; i--) {
+        const date = subMonths(today, i);
+        months.push({ month: format(date, 'MMM'), workouts: 0 });
+    }
+    return months;
+};
+
 export const createNewUserProfile = async (firestore: any, user: User, isReset = false): Promise<UserProfile> => {
     const userRef = doc(firestore, 'users', user.uid);
+
     const newUserProfileData: Omit<UserProfile, 'uid' | 'displayName' | 'email' | 'photoURL'> = {
       weight: 0,
       height: 0,
@@ -47,14 +59,7 @@ export const createNewUserProfile = async (firestore: any, user: User, isReset =
       lastWorkoutDate: '',
       streakFreezeLastUsed: '',
       dailyTaskLastCompleted: '',
-      workoutHistory: [
-        { month: 'Jan', workouts: 0 },
-        { month: 'Feb', workouts: 0 },
-        { month: 'Mar', workouts: 0 },
-        { month: 'Apr', workouts: 0 },
-        { month: 'May', workouts: 0 },
-        { month: 'Jun', workouts: 0 },
-      ],
+      workoutHistory: generateLastSixMonths(),
       progressOverview: [
         { metric: 'Strength', value: 0 },
         { metric: 'Cardio', value: 0 },

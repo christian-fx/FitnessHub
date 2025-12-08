@@ -2,15 +2,18 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { format, subMonths } from 'date-fns';
+import { useMemo } from 'react';
 
-const defaultChartData = [
-  { month: 'Jan', workouts: 0 },
-  { month: 'Feb', workouts: 0 },
-  { month: 'Mar', workouts: 0 },
-  { month: 'Apr', workouts: 0 },
-  { month: 'May', workouts: 0 },
-  { month: 'Jun', workouts: 0 },
-];
+const generateDefaultChartData = () => {
+    const data = [];
+    const today = new Date();
+    for (let i = 5; i >= 0; i--) {
+        const date = subMonths(today, i);
+        data.push({ month: format(date, 'MMM'), workouts: 0 });
+    }
+    return data;
+};
 
 const chartConfig = {
   workouts: {
@@ -24,7 +27,9 @@ type WorkoutHistoryChartProps = {
 }
 
 export function WorkoutHistoryChart({ data }: WorkoutHistoryChartProps) {
+  const defaultChartData = useMemo(() => generateDefaultChartData(), []);
   const chartData = data && data.length > 0 ? data : defaultChartData;
+
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
       <BarChart accessibilityLayer data={chartData}>
@@ -40,6 +45,7 @@ export function WorkoutHistoryChart({ data }: WorkoutHistoryChartProps) {
           axisLine={false}
           tickMargin={8}
           tickCount={4}
+          allowDecimals={false}
         />
         <ChartTooltip
           cursor={false}
