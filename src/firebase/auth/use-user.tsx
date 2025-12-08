@@ -119,9 +119,23 @@ export function useUser() {
   useEffect(() => {
     if (user) {
       const docRef = doc(firestore, 'users', user.uid);
-      const unsubscribeProfile = onSnapshot(docRef, (docSnap) => {
+      const unsubscribeProfile = onSnapshot(docRef, async (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data() as UserProfile;
+
+          // One-time data migration for existing users with the old static workout history
+          if (data.createdAt && data.workoutHistory && data.workoutHistory.length > 0 && data.workoutHistory[0].month === 'Jan') {
+            const signupDate = new Date(data.createdAt);
+            const firstMonthOfHistory = addMonths(signupDate, 0);
+            
+            // Check if the static 'Jan' is incorrect for their signup month
+            if (format(firstMonthOfHistory, 'MMM') !== 'Jan') {
+              const correctWorkoutHistory = generateInitialWorkoutHistory(signupDate);
+              await updateDoc(docRef, { workoutHistory: correctWorkoutHistory });
+              data.workoutHistory = correctWorkoutHistory; // Update data for the current session
+            }
+          }
+
           setProfile(data);
         } else {
           // Profile doesn't exist, this should only happen during the signup process
