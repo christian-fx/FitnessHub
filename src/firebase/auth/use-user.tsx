@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, updateDoc, getFirestore } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
-import { format, subMonths } from 'date-fns';
+import { format, addMonths } from 'date-fns';
 
 // Define a type for the user profile data
 export interface UserProfile {
@@ -13,6 +13,7 @@ export interface UserProfile {
     displayName: string | null;
     email: string | null;
     photoURL: string | null;
+    createdAt?: string; // ISO string
     weight?: number;
     height?: number;
     age?: number;
@@ -31,11 +32,10 @@ export interface UserProfile {
     dailyTaskLastCompleted?: string; // YYYY-MM-DD
 }
 
-const generateLastSixMonths = () => {
+const generateInitialWorkoutHistory = (startDate: Date) => {
     const months = [];
-    const today = new Date();
-    for (let i = 5; i >= 0; i--) {
-        const date = subMonths(today, i);
+    for (let i = 0; i < 6; i++) {
+        const date = addMonths(startDate, i);
         months.push({ month: format(date, 'MMM'), workouts: 0 });
     }
     return months;
@@ -43,12 +43,14 @@ const generateLastSixMonths = () => {
 
 export const createNewUserProfile = async (firestore: any, user: User, isReset = false): Promise<UserProfile> => {
     const userRef = doc(firestore, 'users', user.uid);
+    const creationDate = new Date();
 
-    const newUserProfileData: Omit<UserProfile, 'uid' | 'displayName' | 'email' | 'photoURL'> = {
+    const newUserProfileData = {
+      createdAt: creationDate.toISOString(),
       weight: 0,
       height: 0,
       age: 0,
-      gender: 'not-specified',
+      gender: 'not-specified' as UserProfile['gender'],
       totalWorkouts: 0,
       recentWorkoutChange: 0,
       caloriesBurned: 0,
@@ -59,7 +61,7 @@ export const createNewUserProfile = async (firestore: any, user: User, isReset =
       lastWorkoutDate: '',
       streakFreezeLastUsed: '',
       dailyTaskLastCompleted: '',
-      workoutHistory: generateLastSixMonths(),
+      workoutHistory: generateInitialWorkoutHistory(creationDate),
       progressOverview: [
         { metric: 'Strength', value: 0 },
         { metric: 'Cardio', value: 0 },
@@ -70,13 +72,15 @@ export const createNewUserProfile = async (firestore: any, user: User, isReset =
     };
 
     if (isReset) {
-      await updateDoc(userRef, newUserProfileData);
+      // When resetting, we keep the original creation date
+      const { createdAt, ...resettableData } = newUserProfileData;
+      await updateDoc(userRef, resettableData);
       return { 
         uid: user.uid,
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
-        ...newUserProfileData
+        ...resettableData
       };
     }
 
@@ -120,8 +124,8 @@ export function useUser() {
           const data = docSnap.data() as UserProfile;
           setProfile(data);
         } else {
-          // If profile doesn't exist, it means signup is in progress
-          // or there's an issue. The signup flow is responsible for creation.
+          // Profile doesn't exist, this should only happen during the signup process
+          // The signup flow is now solely responsible for profile creation.
           setProfile(null);
         }
         setLoading(false);
