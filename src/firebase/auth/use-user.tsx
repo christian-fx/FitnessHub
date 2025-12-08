@@ -110,14 +110,14 @@ export function useUser() {
   useEffect(() => {
     if (user) {
       const docRef = doc(firestore, 'users', user.uid);
-      const unsubscribeProfile = onSnapshot(docRef, async (docSnap) => {
+      const unsubscribeProfile = onSnapshot(docRef, (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data() as UserProfile;
           setProfile(data);
         } else {
-          // If profile doesn't exist, create one
-          const newProfile = await createNewUserProfile(firestore, user);
-          setProfile(newProfile);
+          // If profile doesn't exist, it means signup is in progress
+          // or there's an issue. The signup flow is responsible for creation.
+          setProfile(null);
         }
         setLoading(false);
       }, (error) => {
