@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare, Wand2, HelpCircle } from 'lucide-react';
+import { Home, LineChart, Dumbbell, Trophy, User, LogIn, PlusSquare, Wand2, HelpCircle, UtensilsCrossed } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/icons';
@@ -32,6 +32,7 @@ const navItems = [
   { href: '/dashboard', icon: LineChart, label: 'Dashboard' },
   { href: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { href: '/ai', icon: Wand2, label: 'AI Planner' },
+  { href: '/diet-planner', icon: UtensilsCrossed, label: 'Diet Planner' },
   { href: '/challenges', icon: Trophy, label: 'Challenges' },
   { href: '/log', icon: PlusSquare, label: 'Log Workout' },
 ];
@@ -66,7 +67,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     const currentPath = `/${pathname.split('/')[1]}`;
     
-    if (currentPath === '/ai') return 'AI Planner';
+    if (currentPath === '/ai') return 'AI Workout Planner';
+    if (currentPath === '/diet-planner') return 'AI Diet Planner';
     if (currentPath === '/profile') return 'Profile';
     if (currentPath === '/contact') return 'Contact Us';
     if (currentPath === '/help') return 'Help & FAQ';
@@ -135,7 +137,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         >
                             <Link href="/ai">
                                 <Wand2 />
-                                <span>AI Planner</span>
+                                <span>AI Workout Planner</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={pathname === '/diet-planner'}
+                        >
+                            <Link href="/diet-planner">
+                                <UtensilsCrossed />
+                                <span>AI Diet Planner</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
