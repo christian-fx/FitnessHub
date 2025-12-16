@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Wand2, LineChart, Trophy } from "lucide-react";
+import { ArrowRight, Wand2, LineChart, Trophy, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -14,7 +14,7 @@ export default function LandingPage() {
               Your Personal AI Fitness Coach
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-              Achieve your fitness goals with personalized workout plans, progress
+              Achieve your goals with personalized workout and diet plans, progress
               tracking, and community challenges. All powered by AI.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -40,14 +40,23 @@ export default function LandingPage() {
                       Everything you need to stay on track, get stronger, and achieve your fitness ambitions.
                   </p>
               </div>
-              <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
+              <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                   <div className="flex flex-col items-center p-4">
                       <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary">
                           <Wand2 className="h-8 w-8" />
                       </div>
-                      <h3 className="mt-4 text-xl font-semibold">AI-Powered Plans</h3>
+                      <h3 className="mt-4 text-xl font-semibold">AI-Powered Workouts</h3>
                       <p className="mt-2 text-muted-foreground">
                           Get workout routines tailored to your goals, equipment, and fitness level.
+                      </p>
+                  </div>
+                  <div className="flex flex-col items-center p-4">
+                      <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary">
+                          <UtensilsCrossed className="h-8 w-8" />
+                      </div>
+                      <h3 className="mt-4 text-xl font-semibold">AI Diet Plans</h3>
+                      <p className="mt-2 text-muted-foreground">
+                          Receive personalized meal plans that align with your dietary needs and health goals.
                       </p>
                   </div>
                    <div className="flex flex-col items-center p-4">
@@ -56,7 +65,7 @@ export default function LandingPage() {
                       </div>
                       <h3 className="mt-4 text-xl font-semibold">Track Your Progress</h3>
                       <p className="mt-2 text-muted-foreground">
-                          Log every workout and see your strength, endurance, and consistency improve over time.
+                          Log every workout and see your strength and consistency improve over time.
                       </p>
                   </div>
                    <div className="flex flex-col items-center p-4">
@@ -65,7 +74,7 @@ export default function LandingPage() {
                       </div>
                       <h3 className="mt-4 text-xl font-semibold">Join Challenges</h3>
                       <p className="mt-2 text-muted-foreground">
-                          Stay motivated by joining community challenges and competing with fellow fitness enthusiasts.
+                          Stay motivated by competing with fellow fitness enthusiasts in community challenges.
                       </p>
                   </div>
               </div>

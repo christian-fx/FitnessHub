@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getAIDietPlan } from '@/app/diet-planner/actions';
+import { getAIDietPlan } from '@/app/ai/actions';
 import ReactMarkdown from 'react-markdown';
 
 import { Button } from '@/components/ui/button';
