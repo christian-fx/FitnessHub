@@ -30,7 +30,7 @@ Fitness Hub is a modern, AI-powered web application designed to help users achie
 To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
-
+q
 -   Node.js (v18 or newer recommended)
 -   npm or yarn
 
